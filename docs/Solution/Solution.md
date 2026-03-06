@@ -1,0 +1,2 @@
+## Solution
+The Solution for this problem is Cue, a mobile application that will help student understand the underlying cause of study delays, and make neccessary adjustments to their routines. Cue Shall understand the environment and contextual settings of the user and collect signals  such as phone usage before studying, location or movement,sleep duration,internet connectivity and the wheather to generate insights to uncover the factors that influence a student's ability to start studying.
