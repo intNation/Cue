@@ -1,4 +1,4 @@
-package com.cue.app.ui.theme
+package com.cue.presentation.theme
 
 import androidx.compose.ui.graphics.Color
 

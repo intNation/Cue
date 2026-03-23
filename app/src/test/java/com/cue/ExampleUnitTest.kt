@@ -1,7 +1,6 @@
-package com.cue.app
+package com.cue
 
 import org.junit.Test
-
 import org.junit.Assert.*
 
 /**

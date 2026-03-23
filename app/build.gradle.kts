@@ -4,7 +4,7 @@ plugins {
 }
 
 android {
-    namespace = "com.cue.app"
+    namespace = "com.cue"
     compileSdk {
         version = release(36) {
             minorApiLevel = 1
@@ -12,7 +12,7 @@ android {
     }
 
     defaultConfig {
-        applicationId = "com.cue.app"
+        applicationId = "com.cue"
         minSdk = 30
         targetSdk = 36
         versionCode = 1
