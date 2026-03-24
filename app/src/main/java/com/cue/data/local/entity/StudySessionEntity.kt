@@ -14,9 +14,6 @@ data class StudySessionEntity(
     @ColumnInfo(name = "end_time")
     val endTime: Long?,
 
-    @ColumnInfo(name = "duration")
-    val duration: Long,
-
     @ColumnInfo(name = "end_type")
     val endType: String? , // Manual or SEMI auto
 

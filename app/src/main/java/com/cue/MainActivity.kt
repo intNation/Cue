@@ -11,9 +11,16 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.room3.Room
+import com.cue.data.local.CueDatabase
 import com.cue.presentation.theme.CueTheme
 
 class MainActivity : ComponentActivity() {
+
+    val db  = Room.databaseBuilder(ApplicationContext, CueDatabase::Class.java, "Cue_Database").build()
+
+    val _dao = db.studySessionDao()
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
