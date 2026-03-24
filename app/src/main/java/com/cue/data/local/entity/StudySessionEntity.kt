@@ -15,7 +15,7 @@ data class StudySessionEntity(
     val endTime: Long?,
 
     @ColumnInfo(name = "end_type")
-    val endType: String? , // Manual or SEMI auto
+    val endType: String?, // Manual or SEMI auto
 
     @ColumnInfo(name = "created_at")
     val createdAt : Long = System.currentTimeMillis(),

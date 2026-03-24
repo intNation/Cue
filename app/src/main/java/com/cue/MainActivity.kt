@@ -11,44 +11,37 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.room3.Room
+import androidx.lifecycle.lifecycleScope
+import androidx.room.Room
 import com.cue.data.local.CueDatabase
+import com.cue.data.local.entity.StudySessionEntity
 import com.cue.presentation.theme.CueTheme
+import kotlinx.coroutines.launch
 
 class MainActivity : ComponentActivity() {
 
-    val db  = Room.databaseBuilder(ApplicationContext, CueDatabase::Class.java, "Cue_Database").build()
-
-    val _dao = db.studySessionDao()
-
     override fun onCreate(savedInstanceState: Bundle?) {
+        val db = Room.databaseBuilder(applicationContext, CueDatabase::class.java, "cue.db").build()
+        val sessionDao = db.studySessionDao()
+
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
             CueTheme {
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    Greeting(
-                        name = "Android",
-                        modifier = Modifier.padding(innerPadding)
-                    )
+
+                    lifecycleScope.launch{
+                        val id  = sessionDao.insertSession(
+                             StudySessionEntity(
+                                    startTime = System.currentTimeMillis(),
+                                    endTime = null,
+                                    endType = "Auto"
+                            )
+                        )
+                        Log.d("TEST_DB", "Created session with ID: $id")
+                    }
                 }
             }
         }
-    }
-}
-
-@Composable
-fun Greeting(name: String, modifier: Modifier = Modifier) {
-    Text(
-        text = "Hello $name!",
-        modifier = modifier
-    )
-}
-
-@Preview(showBackground = true)
-@Composable
-fun GreetingPreview() {
-    CueTheme {
-        Greeting("Android")
     }
 }
