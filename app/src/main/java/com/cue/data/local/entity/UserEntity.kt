@@ -1,19 +1,22 @@
+import androidx.room.ColumnInfo
+import androidx.room.Entity
+import androidx.room.PrimaryKey
 
-@Entity(entityName = "User")
-data class UserEntity{
+@Entity(tableName = "User")
+data class UserEntity(
 
-    @primaryKey(autoGenerate = true)
-    val id: Long = 0
+    @PrimaryKey(autoGenerate = true)
+    val id: Long = 0,
 
     @ColumnInfo(name = "first_name")
-    val first_name: String
+    val first_name: String,
 
     @ColumnInfo(name = "last_name")
-    val last_name: String
+    val last_name: String,
 
     @ColumnInfo(name = "email")
-    val email: String
+    val email: String,
 
     @ColumnInfo(name = "created_at")
     val createdAt: Long = System.currentTimeMillis()
-}
+)
