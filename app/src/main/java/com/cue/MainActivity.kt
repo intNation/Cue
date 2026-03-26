@@ -26,7 +26,7 @@ class MainActivity : ComponentActivity() {
         val db = Room.databaseBuilder(applicationContext, CueDatabase::class.java, "cue.db").build()
 
         val sessionDao = db.studySessionDao()
-        val sessionDao = db.UserDao()
+        val userDao = db.userDao()
 
 
         enableEdgeToEdge()
