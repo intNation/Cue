@@ -1,19 +1,24 @@
+package com.cue.data.local.entity
 
-@Entity(entityName = "User")
-data class UserEntity{
+import androidx.room.ColumnInfo
+import androidx.room.Entity
+import androidx.room.PrimaryKey
 
-    @primaryKey(autoGenerate = true)
-    val id: Long = 0
+
+@Entity(tableName = "User")
+data class UserEntity(
+    @PrimaryKey(autoGenerate = true)
+    val id: Long = 0,
 
     @ColumnInfo(name = "first_name")
-    val first_name: String
+    val firstName: String,
 
     @ColumnInfo(name = "last_name")
-    val last_name: String
+    val lastName: String,
 
     @ColumnInfo(name = "email")
-    val email: String
+    val email: String,
 
     @ColumnInfo(name = "created_at")
     val createdAt: Long = System.currentTimeMillis()
-}
+)

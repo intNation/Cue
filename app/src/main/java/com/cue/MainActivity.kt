@@ -9,9 +9,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.lifecycle.lifecycleScope
 import androidx.room.Room
 import com.cue.data.local.CueDatabase
@@ -23,10 +21,11 @@ class MainActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        val db = Room.databaseBuilder(applicationContext, CueDatabase::class.java, "cue.db").build()
+        val db = Room.databaseBuilder(applicationContext, CueDatabase::class.java, "cue.db")
+            .build()
 
         val sessionDao = db.studySessionDao()
-        val userDao = db.userDao()
+
 
 
         enableEdgeToEdge()
@@ -45,6 +44,7 @@ class MainActivity : ComponentActivity() {
         setContent {
             CueTheme {
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
+                    Text(text = "Cue is running!", modifier = Modifier.padding(innerPadding))
 
                 }
             }
