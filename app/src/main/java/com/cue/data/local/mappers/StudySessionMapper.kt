@@ -1,5 +1,6 @@
-package com.cue.data.local.entity
+package com.cue.data.local.mappers
 
+import com.cue.data.local.entity.StudySessionEntity
 import com.cue.domain.model.EndType
 import com.cue.domain.model.SessionStatus
 import com.cue.domain.model.StudySession

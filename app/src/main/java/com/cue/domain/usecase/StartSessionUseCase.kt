@@ -1,19 +1,30 @@
 package com.cue.domain.usecase
 
+import com.cue.domain.repository.ContextEngine
+import com.cue.domain.repository.ContextSnapShotRepository
 import com.cue.domain.repository.StudySessionRepository
 
 /**
  * Use case for starting a new study session.
- * @param repo The study session repository.
- * @constructor Creates a new StartSessionUseCase object.
+ * Collects a context snapshot at the start of the session.
  */
-class StartSessionUseCase (val repo : StudySessionRepository){
+class StartSessionUseCase(
+    private val studyRepository: StudySessionRepository,
+    private val contextEngine: ContextEngine,
+    private val snapshotRepository: ContextSnapShotRepository
+) {
     /**
-     * Starts a new study session.
+     * Starts a new study session and captures context.
      * @return The ID of the newly created study session.
      */
-    suspend fun invoke() : Long {
-        return repo.startSession(System.currentTimeMillis())
+    suspend operator fun invoke(): Long {
+        val startTime = System.currentTimeMillis()
+        val sessionId = studyRepository.startSession(startTime)
+        
+        // Capture and save snapshot
+        val snapshot = contextEngine.captureSnapshot(sessionId)
+        snapshotRepository.insertSnapshot(snapshot)
+        
+        return sessionId
     }
-
 }

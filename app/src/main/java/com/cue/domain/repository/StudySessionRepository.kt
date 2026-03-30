@@ -4,12 +4,11 @@ import com.cue.domain.model.StudySession
 
 /**
  * Interface for the study session repository.
- * Responsible for managing study sessions in the database.
+ * Responsible for managing study sessions.
  */
 interface StudySessionRepository {
-
-    abstract suspend fun startSession(startTime: Long) : Long
-    abstract suspend fun getActiveSession(): StudySession?
-    abstract suspend fun getAllSessions(): List<StudySession>
-
+    suspend fun startSession(startTime: Long): Long
+    suspend fun getActiveSession(): StudySession?
+    suspend fun getAllSessions(): List<StudySession>
+    suspend fun updateSession(session: StudySession)
 }
