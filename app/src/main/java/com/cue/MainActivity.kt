@@ -63,6 +63,7 @@ class MainActivity : ComponentActivity() {
                     StartSessionUseCase(sessionRepo, contextEngine, snapshotRepo),
                     EndSessionUseCase(sessionRepo),
                     GetActiveSessionUseCase(sessionRepo),
+                    com.cue.domain.usecase.CleanupStaleSessionsUseCase(sessionRepo),
                     SubmitDailyCheckInUseCase(checkInRepo)
                 ) as T
             }

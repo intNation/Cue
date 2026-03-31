@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.cue.domain.model.EndType
 import com.cue.domain.model.StudySession
+import com.cue.domain.usecase.CleanupStaleSessionsUseCase
 import com.cue.domain.usecase.EndSessionUseCase
 import com.cue.domain.usecase.GetActiveSessionUseCase
 import com.cue.domain.usecase.StartSessionUseCase
@@ -23,14 +24,18 @@ class MainViewModel(
     private val startSessionUseCase: StartSessionUseCase,
     private val endSessionUseCase: EndSessionUseCase,
     private val getActiveSessionUseCase: GetActiveSessionUseCase,
+    private val cleanupStaleSessionsUseCase: CleanupStaleSessionsUseCase,
     private val submitDailyCheckInUseCase: SubmitDailyCheckInUseCase
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(MainUiState())
     val uiState: StateFlow<MainUiState> = _uiState.asStateFlow()
 
-    init { //runs when the viewmodel instance is created
-        refreshSessionStatus()
+    init {
+        viewModelScope.launch {
+            cleanupStaleSessionsUseCase()
+            refreshSessionStatus()
+        }
     }
 
     fun refreshSessionStatus() {
@@ -60,4 +65,5 @@ class MainViewModel(
             // Feedback to UI?
         }
     }
+
 }
