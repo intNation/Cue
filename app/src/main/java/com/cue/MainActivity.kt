@@ -46,7 +46,7 @@ class MainActivity : ComponentActivity() {
             .build()
     }
 
-    private val viewModel: MainViewModel by viewModels {
+    private val viewModel: MainViewModel by viewModels { //by keyword delegates the management of the mainviewmodel to the function viewModels()
         object : ViewModelProvider.Factory {
 
             override fun <T : ViewModel> create(modelClass: Class<T>): T {

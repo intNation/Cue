@@ -29,7 +29,7 @@ class MainViewModel(
     private val _uiState = MutableStateFlow(MainUiState())
     val uiState: StateFlow<MainUiState> = _uiState.asStateFlow()
 
-    init {
+    init { //runs when the viewmodel instance is created
         refreshSessionStatus()
     }
 

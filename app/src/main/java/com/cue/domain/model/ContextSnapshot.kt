@@ -15,6 +15,7 @@ data class ContextSnapshot(
     val sessionId: Long,
     val phoneUsage: String, // Dummy: "High", "Medium", "Low"
     val connectivity: String, // Dummy: "WiFi", "Cellular", "None"
+    val sleep: Int, // Mocked
     val weather: String, // Dummy: "Sunny", "Rainy", "Cloudy"
     val confidenceScore: Float
 )

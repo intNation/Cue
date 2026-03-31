@@ -13,6 +13,7 @@ fun ContextSnapshotEntity.toDomain() = ContextSnapshot(
     phoneUsage = phoneUsage,
     connectivity = connectivity,
     weather = weather,
+    sleep = sleep,
     confidenceScore = confidenceScore,
 )
 
@@ -27,4 +28,5 @@ fun ContextSnapshot.toDomain() = ContextSnapshotEntity(
     connectivity = connectivity,
     weather = weather,
     confidenceScore = confidenceScore,
+    sleep = sleep
 )

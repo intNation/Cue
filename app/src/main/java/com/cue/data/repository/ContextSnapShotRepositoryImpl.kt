@@ -35,6 +35,7 @@ class ContextSnapShotRepositoryImpl(val dao: ContextSnapshotDao) : ContextSnapSh
             sessionId = snapshot.sessionId,
             phoneUsage = snapshot.phoneUsage,
             connectivity = snapshot.connectivity,
+            sleep = snapshot.sleep,
             weather = snapshot.weather,
             confidenceScore = snapshot.confidenceScore
         )

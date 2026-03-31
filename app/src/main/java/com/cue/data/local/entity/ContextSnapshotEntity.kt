@@ -35,6 +35,9 @@ data class ContextSnapshotEntity(
     @ColumnInfo(name = "phone_usage")
     val phoneUsage: String,
 
+    @ColumnInfo(name = "sleep")
+    val sleep: Int,  // Mocked
+
     @ColumnInfo(name = "connectivity")
     val connectivity: String,
 
