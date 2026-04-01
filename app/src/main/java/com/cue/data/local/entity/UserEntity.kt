@@ -6,12 +6,13 @@ import androidx.room.PrimaryKey
 
 /**
  * Entity class representing a user in the database.
- * @param id The unique identifier of the user.
- * @param firstName The first name of the user.
- * @param lastName The last name of the user.
- * @param email The email address of the user.
- * @param createdAt The timestamp when the user was created.
- * @constructor Creates a new UserEntity object.
+ * @property id The unique identifier of the user.
+ * @property firstName The first name of the user.
+ * @property lastName The last name of the user.
+ * @property email The email address of the user.
+ * @property successMetric The user's success metric.
+ *
+ *
  */
 @Entity(tableName = "User")
 data class UserEntity(
@@ -19,13 +20,19 @@ data class UserEntity(
     val id: Long = 0,
 
     @ColumnInfo(name = "first_name")
-    val firstName: String,
+    val firstName: String = "",
 
     @ColumnInfo(name = "last_name")
-    val lastName: String,
+    val lastName: String = "",
 
     @ColumnInfo(name = "email")
-    val email: String,
+    val email: String = "",
+
+    @ColumnInfo(name = "success_metric")
+    val successMetric: String? = null, // Enum name
+
+    @ColumnInfo(name = "is_onboarding_completed")
+    val isOnboardingCompleted: Boolean = false,
 
     @ColumnInfo(name = "created_at")
     val createdAt: Long = System.currentTimeMillis()

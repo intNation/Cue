@@ -1,0 +1,70 @@
+package com.cue.data.local.mappers
+
+import com.cue.data.local.entity.StudyLocationEntity
+import com.cue.data.local.entity.UserEntity
+import com.cue.data.local.entity.WeeklyScheduleEntity
+import com.cue.data.local.model.UserWithDetails
+import com.cue.domain.model.DaySchedule
+import com.cue.domain.model.StudyLocation
+import com.cue.domain.model.SuccessMetric
+import com.cue.domain.model.User
+
+/**
+ * Extension function to convert a UserWithDetails to a User domain model.
+ */
+fun UserWithDetails.toDomain() = User(
+    id = user.id,
+    firstName = user.firstName,
+    lastName = user.lastName,
+    email = user.email,
+    preferredLocations = locations.map { StudyLocation.valueOf(it.location) },
+    weeklySchedule = schedules.map { it.toDomain() },
+    successMetric = user.successMetric?.let { SuccessMetric.valueOf(it) },
+    isOnboardingCompleted = user.isOnboardingCompleted
+)
+
+/**
+ * Extension function to convert a WeeklyScheduleEntity to a DaySchedule domain model.
+ */
+fun WeeklyScheduleEntity.toDomain() = DaySchedule(
+    dayOfWeek = dayOfWeek,
+    startTime = startTime,
+    endTime = endTime,
+    isFlexible = isFlexible
+)
+
+/**
+ * Extension function to convert a User domain model to its respective entities for saving.
+ */
+fun User.toEntity() = UserEntity(
+    id = id,
+    firstName = firstName,
+    lastName = lastName,
+    email = email,
+    successMetric = successMetric?.name,
+    isOnboardingCompleted = isOnboardingCompleted,
+    createdAt = System.currentTimeMillis()
+)
+
+/**
+ * Extension function to convert a list of StudyLocations to entities.
+ */
+fun User.toLocationEntities() = preferredLocations.map {
+    StudyLocationEntity(
+        userId = id,
+        location = it.name
+    )
+}
+
+/**
+ * Extension function to convert a list of DaySchedules to entities.
+ */
+fun User.toScheduleEntities() = weeklySchedule.map {
+    WeeklyScheduleEntity(
+        userId = id,
+        dayOfWeek = it.dayOfWeek,
+        startTime = it.startTime,
+        endTime = it.endTime,
+        isFlexible = it.isFlexible
+    )
+}

@@ -8,17 +8,21 @@ import com.cue.data.local.dao.StudySessionDao
 import com.cue.data.local.dao.UserDao
 import com.cue.data.local.entity.ContextSnapshotEntity
 import com.cue.data.local.entity.DailyCheckInEntity
+import com.cue.data.local.entity.StudyLocationEntity
 import com.cue.data.local.entity.StudySessionEntity
 import com.cue.data.local.entity.UserEntity
+import com.cue.data.local.entity.WeeklyScheduleEntity
 
 @Database(
     entities = [
         StudySessionEntity::class,
         UserEntity::class,
         ContextSnapshotEntity::class,
-        DailyCheckInEntity::class
+        DailyCheckInEntity::class,
+        StudyLocationEntity::class,
+        WeeklyScheduleEntity::class
     ],
-    version = 3,
+    version = 4,
     exportSchema = false
 )
 abstract class CueDatabase : RoomDatabase() {

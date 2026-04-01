@@ -1,0 +1,56 @@
+<mxfile host="app.diagrams.net">
+  <diagram name="Page-1" id="xsiq4DtMtuIW3B98z_dV">
+    <mxGraphModel dx="1554" dy="759" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="9czqYoFU4QBSE9szgZis-7" parent="1" style="swimlane;whiteSpace=wrap;html=1;" value="Study Session Subsystem" vertex="1">
+          <mxGeometry height="425" width="480" x="350" y="65" as="geometry" />
+        </mxCell>
+        <mxCell id="9czqYoFU4QBSE9szgZis-9" parent="9czqYoFU4QBSE9szgZis-7" style="ellipse;whiteSpace=wrap;html=1;" value="Start Study Session" vertex="1">
+          <mxGeometry height="70" width="140" x="90" y="55" as="geometry" />
+        </mxCell>
+        <mxCell id="9czqYoFU4QBSE9szgZis-10" parent="9czqYoFU4QBSE9szgZis-7" style="ellipse;whiteSpace=wrap;html=1;" value="End StudySession" vertex="1">
+          <mxGeometry height="70" width="140" x="80" y="170" as="geometry" />
+        </mxCell>
+        <mxCell id="9czqYoFU4QBSE9szgZis-13" edge="1" parent="9czqYoFU4QBSE9szgZis-7" source="9czqYoFU4QBSE9szgZis-10" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;dashed=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" target="9czqYoFU4QBSE9szgZis-11">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="310" y="205" />
+              <mxPoint x="310" y="205" />
+            </Array>
+            <mxPoint x="400" y="245" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="9czqYoFU4QBSE9szgZis-11" parent="9czqYoFU4QBSE9szgZis-7" style="ellipse;whiteSpace=wrap;html=1;align=left;" value="&lt;blockquote style=&quot;margin: 0 0 0 40px; border: none; padding: 0px;&quot;&gt;Get Active Session&lt;/blockquote&gt;" vertex="1">
+          <mxGeometry height="70" width="140" x="330" y="170" as="geometry" />
+        </mxCell>
+        <mxCell id="9czqYoFU4QBSE9szgZis-19" edge="1" parent="9czqYoFU4QBSE9szgZis-7" source="9czqYoFU4QBSE9szgZis-12" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0.5;entryY=1;entryDx=0;entryDy=0;dashed=1;" target="9czqYoFU4QBSE9szgZis-10">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="9czqYoFU4QBSE9szgZis-20" connectable="0" parent="9czqYoFU4QBSE9szgZis-19" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" value="&amp;lt;&amp;lt;Extends&amp;gt;&amp;gt;" vertex="1">
+          <mxGeometry relative="1" x="0.0542" y="4" as="geometry">
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="9czqYoFU4QBSE9szgZis-12" parent="9czqYoFU4QBSE9szgZis-7" style="ellipse;whiteSpace=wrap;html=1;" value="Auto End Study Session" vertex="1">
+          <mxGeometry height="70" width="140" x="80" y="315" as="geometry" />
+        </mxCell>
+        <mxCell id="9czqYoFU4QBSE9szgZis-14" parent="9czqYoFU4QBSE9szgZis-7" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;rounded=0;" value="&amp;lt;&amp;lt;Inlcudes&amp;gt;&amp;gt;" vertex="1">
+          <mxGeometry height="30" width="60" x="240" y="175" as="geometry" />
+        </mxCell>
+        <mxCell id="9czqYoFU4QBSE9szgZis-15" edge="1" parent="1" source="9czqYoFU4QBSE9szgZis-8" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0;entryY=0.5;entryDx=0;entryDy=0;endArrow=none;endFill=0;" target="9czqYoFU4QBSE9szgZis-9">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="9czqYoFU4QBSE9szgZis-21" edge="1" parent="1" source="9czqYoFU4QBSE9szgZis-8" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0;entryY=0.5;entryDx=0;entryDy=0;endArrow=none;endFill=0;" target="9czqYoFU4QBSE9szgZis-10">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="9czqYoFU4QBSE9szgZis-8" parent="1" style="shape=umlActor;verticalLabelPosition=bottom;verticalAlign=top;html=1;outlineConnect=0;" value="Actor" vertex="1">
+          <mxGeometry height="60" width="30" x="170" y="240" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>
