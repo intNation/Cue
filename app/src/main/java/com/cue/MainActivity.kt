@@ -37,18 +37,27 @@ import com.cue.domain.usecase.GetActiveSessionUseCase
 import com.cue.domain.usecase.StartSessionUseCase
 import com.cue.domain.usecase.SubmitDailyCheckInUseCase
 import com.cue.presentation.main.MainViewModel
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import com.cue.data.repository.UserRepositoryImpl
+import com.cue.domain.usecase.SaveUserOnboardingUseCase
+import com.cue.presentation.onboarding.OnboardingViewModel
+import com.cue.presentation.onboarding.screens.StudyLocationScreen
 import com.cue.presentation.theme.CueTheme
 
 class MainActivity : ComponentActivity() {
 
     private val db by lazy {
         Room.databaseBuilder(applicationContext, CueDatabase::class.java, "cue.db")
+            .fallbackToDestructiveMigration()
             .build()
     }
 
     private val viewModel: MainViewModel by viewModels { //by keyword delegates the management of the mainviewmodel to the function viewModels()
         object : ViewModelProvider.Factory {
 
+            @Suppress ("UNCHECKED_CAST")
             override fun <T : ViewModel> create(modelClass: Class<T>): T {
                 val sessionDao = db.studySessionDao()
                 val snapshotDao = db.contextSnapshotDao()
@@ -65,7 +74,17 @@ class MainActivity : ComponentActivity() {
                     GetActiveSessionUseCase(sessionRepo),
                     com.cue.domain.usecase.CleanupStaleSessionsUseCase(sessionRepo),
                     SubmitDailyCheckInUseCase(checkInRepo)
-                ) as T
+                )  as T
+            }
+        }
+    }
+
+    private val onboardingViewModel: OnboardingViewModel by viewModels {
+        object : ViewModelProvider.Factory {
+            @Suppress("UNCHECKED_CAST")
+            override fun <T : ViewModel> create(modelClass: Class<T>): T {
+                val userRepo = UserRepositoryImpl(db, db.userDao())
+                return OnboardingViewModel(SaveUserOnboardingUseCase(userRepo)) as T
             }
         }
     }
@@ -76,14 +95,30 @@ class MainActivity : ComponentActivity() {
         setContent {
             CueTheme {
                 val uiState by viewModel.uiState.collectAsState()
+                val onboardingState by onboardingViewModel.uiState.collectAsState()
                 
-                Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    MainScreen(
-                        modifier = Modifier.padding(innerPadding),
-                        activeSessionId = uiState.activeSession?.id,
-                        onToggleSession = { viewModel.toggleSession() },
-                        onCheckIn = { didStudy -> viewModel.submitCheckIn(didStudy) }
+                // Simple logic for V2: Start with onboarding if not completed
+                var forceOnboarding by remember { mutableStateOf(true) }
+
+                if (forceOnboarding && !onboardingState.onboardingCompleted) {
+                    StudyLocationScreen(
+                        selectedLocations = onboardingState.selectedLocations,
+                        onLocationToggle = { onboardingViewModel.onLocationToggle(it) },
+                        onContinue = { 
+                            // Temporarily complete onboarding on first step continue 
+                            // until other steps are implemented
+                            onboardingViewModel.completeOnboarding()
+                        }
                     )
+                } else {
+                    Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
+                        MainScreen(
+                            modifier = Modifier.padding(innerPadding),
+                            activeSessionId = uiState.activeSession?.id,
+                            onToggleSession = { viewModel.toggleSession() },
+                            onCheckIn = { didStudy -> viewModel.submitCheckIn(didStudy) }
+                        )
+                    }
                 }
             }
         }
