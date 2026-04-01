@@ -21,6 +21,9 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
@@ -32,18 +35,17 @@ import com.cue.data.local.CueDatabase
 import com.cue.data.repository.ContextSnapShotRepositoryImpl
 import com.cue.data.repository.DailyCheckinRepositoryImpl
 import com.cue.data.repository.StudySessionRepositoryImpl
+import com.cue.data.repository.UserRepositoryImpl
+import com.cue.domain.usecase.CleanupStaleSessionsUseCase
 import com.cue.domain.usecase.EndSessionUseCase
 import com.cue.domain.usecase.GetActiveSessionUseCase
+import com.cue.domain.usecase.SaveUserOnboardingUseCase
 import com.cue.domain.usecase.StartSessionUseCase
 import com.cue.domain.usecase.SubmitDailyCheckInUseCase
 import com.cue.presentation.main.MainViewModel
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
-import com.cue.data.repository.UserRepositoryImpl
-import com.cue.domain.usecase.SaveUserOnboardingUseCase
 import com.cue.presentation.onboarding.OnboardingViewModel
 import com.cue.presentation.onboarding.screens.StudyLocationScreen
+import com.cue.presentation.onboarding.screens.StudyScheduleScreen
 import com.cue.presentation.theme.CueTheme
 
 class MainActivity : ComponentActivity() {
@@ -54,10 +56,9 @@ class MainActivity : ComponentActivity() {
             .build()
     }
 
-    private val viewModel: MainViewModel by viewModels { //by keyword delegates the management of the mainviewmodel to the function viewModels()
+    private val viewModel: MainViewModel by viewModels {
         object : ViewModelProvider.Factory {
-
-            @Suppress ("UNCHECKED_CAST")
+            @Suppress("UNCHECKED_CAST")
             override fun <T : ViewModel> create(modelClass: Class<T>): T {
                 val sessionDao = db.studySessionDao()
                 val snapshotDao = db.contextSnapshotDao()
@@ -72,9 +73,9 @@ class MainActivity : ComponentActivity() {
                     StartSessionUseCase(sessionRepo, contextEngine, snapshotRepo),
                     EndSessionUseCase(sessionRepo),
                     GetActiveSessionUseCase(sessionRepo),
-                    com.cue.domain.usecase.CleanupStaleSessionsUseCase(sessionRepo),
+                    CleanupStaleSessionsUseCase(sessionRepo),
                     SubmitDailyCheckInUseCase(checkInRepo)
-                )  as T
+                ) as T
             }
         }
     }
@@ -97,19 +98,24 @@ class MainActivity : ComponentActivity() {
                 val uiState by viewModel.uiState.collectAsState()
                 val onboardingState by onboardingViewModel.uiState.collectAsState()
                 
-                // Simple logic for V2: Start with onboarding if not completed
                 var forceOnboarding by remember { mutableStateOf(true) }
 
                 if (forceOnboarding && !onboardingState.onboardingCompleted) {
-                    StudyLocationScreen(
-                        selectedLocations = onboardingState.selectedLocations,
-                        onLocationToggle = { onboardingViewModel.onLocationToggle(it) },
-                        onContinue = { 
-                            // Temporarily complete onboarding on first step continue 
-                            // until other steps are implemented
-                            onboardingViewModel.completeOnboarding()
-                        }
-                    )
+                    when (onboardingState.currentStep) {
+                        1 -> StudyLocationScreen(
+                            selectedLocations = onboardingState.selectedLocations,
+                            onLocationToggle = { onboardingViewModel.onLocationToggle(it) },
+                            onContinue = { onboardingViewModel.nextStep() }
+                        )
+                        2 -> StudyScheduleScreen(
+                            weeklySchedule = onboardingState.weeklySchedule,
+                            onScheduleChange = { onboardingViewModel.onScheduleChange(it) },
+                            onContinue = { 
+                                onboardingViewModel.completeOnboarding() 
+                            },
+                            onBack = { onboardingViewModel.previousStep() }
+                        )
+                    }
                 } else {
                     Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
                         MainScreen(
