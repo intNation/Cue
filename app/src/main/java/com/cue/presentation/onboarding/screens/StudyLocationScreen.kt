@@ -49,6 +49,7 @@ fun StudyLocationScreen(
                 .fillMaxSize()
                 .padding(horizontal = 24.dp)
                 .padding(top = 80.dp, bottom = 140.dp)
+                .verticalScroll(scrollState),
         ) {
             // Step indicator
             StepIndicator(currentStep = 1)
@@ -96,8 +97,8 @@ fun StudyLocationScreen(
             Spacer(modifier = Modifier.height(48.dp))
 
             // Choice Grid - Adaptive Layout
-            Column(verticalArrangement = Arrangement.spacedBy(16.dp),
-                modifier = Modifier.verticalScroll(scrollState)
+            Column(verticalArrangement = Arrangement.spacedBy(16.dp)
+
             ) {
 
                 
@@ -108,7 +109,7 @@ fun StudyLocationScreen(
                 ) {
                     LocationCard(
                         title = "Home",
-                        description = "Comfortable.",
+                        description = "Comfortable and private.",
                         icon = Icons.Default.Home,
                         isSelected = selectedLocations.contains(StudyLocation.HOME),
                         onClick = { onLocationToggle(StudyLocation.HOME) },
@@ -116,7 +117,7 @@ fun StudyLocationScreen(
                     )
                     LocationCard(
                         title = "Cafe",
-                        description = "Energetic.",
+                        description = "Energetic and lively.",
                         icon = Icons.Default.LocationOn,
                         isSelected = selectedLocations.contains(StudyLocation.CAFE),
                         onClick = { onLocationToggle(StudyLocation.CAFE) },
@@ -131,7 +132,7 @@ fun StudyLocationScreen(
                     // Option: Other (Full Width)
                     LocationCard(
                         title = "Other",
-                        description = "Any other study sanctuary.",
+                        description = "Any other sanctuary.",
                         icon = Icons.Default.MoreVert,
                         isSelected = selectedLocations.contains(StudyLocation.OTHER),
                         onClick = { onLocationToggle(StudyLocation.OTHER) },
@@ -141,7 +142,7 @@ fun StudyLocationScreen(
                     // Option: Library (Full Width Anchor)
                     LocationCard(
                         title = "Library",
-                        description = "Quiet, structured, and resource-rich.",
+                        description = "Quiet and peaceful.",
                         icon = Icons.Default.Place,
                         isSelected = selectedLocations.contains(StudyLocation.LIBRARY),
                         onClick = { onLocationToggle(StudyLocation.LIBRARY) },
@@ -204,13 +205,13 @@ fun LocationCard(
     onClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    val borderColor = if (isSelected) MaterialTheme.colorScheme.primary.copy(alpha = 0.5f) 
+    val borderColor = if (isSelected) MaterialTheme.colorScheme.primary.copy(alpha = 0.7f)
                     else Color.Transparent
     
     Box(
         modifier = modifier
             .clip(RoundedCornerShape(24.dp))
-            .background(surface_container_low.copy(alpha = 0.6f))
+            .background(surface_container_low.copy(alpha = 0.4f))
             .border(1.dp, borderColor, RoundedCornerShape(24.dp))
             .clickable(onClick = onClick)
             .padding(18.dp)
@@ -226,7 +227,7 @@ fun LocationCard(
                 Icon(
                     imageVector = icon,
                     contentDescription = null,
-                    tint = if (isSelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant
+                    tint = if (isSelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.inverseOnSurface
                 )
             }
             
@@ -293,7 +294,7 @@ fun GradientButton(
                     Brush.linearGradient(
                         colors = listOf(
                             MaterialTheme.colorScheme.primary,
-                            MaterialTheme.colorScheme.onPrimaryContainer
+                            MaterialTheme.colorScheme.inversePrimary
                         )
                     )
                 ),
