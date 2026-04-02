@@ -1,5 +1,8 @@
 package com.cue.presentation.onboarding.screens
 
+import android.Manifest
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -9,13 +12,12 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.AccountBox
-import androidx.compose.material.icons.filled.ArrowForward
-import androidx.compose.material.icons.filled.DateRange
-import androidx.compose.material.icons.filled.Home
-import androidx.compose.material.icons.filled.KeyboardArrowDown
+import androidx.compose.material.icons.filled.Bedtime
+import androidx.compose.material.icons.filled.CalendarToday
+import androidx.compose.material.icons.filled.DirectionsRun
 import androidx.compose.material.icons.filled.LocationOn
-import androidx.compose.material.icons.filled.Lock
+import androidx.compose.material.icons.filled.Shield
+import androidx.compose.material.icons.filled.VerifiedUser
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -29,6 +31,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.cue.presentation.components.Buttons
+import com.cue.presentation.components.Buttons.GradientButton
 
 @Composable
 fun PermissionsScreen(
@@ -44,6 +47,23 @@ fun PermissionsScreen(
     onCustomizeLater: () -> Unit
 ) {
     val scrollState = rememberScrollState()
+
+    // Permission Launchers
+    val locationLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.RequestPermission()
+    ) { isGranted -> onLocationToggle(isGranted) }
+
+    val calendarLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.RequestPermission()
+    ) { isGranted -> onCalendarToggle(isGranted) }
+
+    val movementLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.RequestPermission()
+    ) { isGranted -> onMovementToggle(isGranted) }
+
+    val sleepLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.RequestPermission()
+    ) { isGranted -> onSleepToggle(isGranted) }
 
     Box(
         modifier = Modifier
@@ -85,7 +105,7 @@ fun PermissionsScreen(
                         contentAlignment = Alignment.Center
                     ) {
                         Icon(
-                            Icons.Filled.Lock,
+                            Icons.Default.Shield,
                             contentDescription = null,
                             tint = MaterialTheme.colorScheme.primary,
                             modifier = Modifier.size(12.dp)
@@ -111,7 +131,7 @@ fun PermissionsScreen(
             Spacer(modifier = Modifier.height(12.dp))
             
             Text(
-                text = "Cue is built on privacy-first. Your data never leaves your device.",
+                text = "Privacy-first architecture. Your data stays on-device.",
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.9f)
             )
@@ -123,42 +143,54 @@ fun PermissionsScreen(
                 Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
                     PermissionCard(
                         title = "Location",
-                        description = "Optimizes insights based on your approximate study location",
+                        description = "Geofence focus zones to silence noise.",
                         icon = Icons.Default.LocationOn,
                         isEnabled = locationEnabled,
-                        onToggle = onLocationToggle,
+                        onToggle = { 
+                            if (!locationEnabled) locationLauncher.launch(Manifest.permission.ACCESS_COARSE_LOCATION)
+                            else onLocationToggle(false)
+                        },
                         modifier = Modifier.weight(1f)
                     )
                     PermissionCard(
                         title = "Calendar",
-                        description = "improves insights based on schedule",
-                        icon = Icons.Filled.DateRange,
+                        description = "Sync schedules for deep work.",
+                        icon = Icons.Default.CalendarToday,
                         isEnabled = calendarEnabled,
-                        onToggle = onCalendarToggle,
+                        onToggle = { 
+                            if (!calendarEnabled) calendarLauncher.launch(Manifest.permission.READ_CALENDAR)
+                            else onCalendarToggle(false)
+                        },
                         modifier = Modifier.weight(1f)
                     )
                 }
                 Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
                     PermissionCard(
                         title = "Sleep",
-                        description = "Optimizes insights based on rest time",
-                        icon = Icons.Filled.Home,
+                        description = "Optimize load based on rest.",
+                        icon = Icons.Default.Bedtime,
                         isEnabled = sleepEnabled,
-                        onToggle = onSleepToggle,
+                        onToggle = { 
+                            if (!sleepEnabled) sleepLauncher.launch(Manifest.permission.ACTIVITY_RECOGNITION)
+                            else onSleepToggle(false)
+                        },
                         modifier = Modifier.weight(1f)
                     )
                     PermissionCard(
                         title = "Movement",
-                        description = "Improves insights based on your daily movement",
-                        icon = Icons.Default.KeyboardArrowDown,
+                        description = "Detect breaks to refresh focus.",
+                        icon = Icons.Default.DirectionsRun,
                         isEnabled = movementEnabled,
-                        onToggle = onMovementToggle,
+                        onToggle = { 
+                            if (!movementEnabled) movementLauncher.launch(Manifest.permission.ACTIVITY_RECOGNITION)
+                            else onMovementToggle(false)
+                        },
                         modifier = Modifier.weight(1f)
                     )
                 }
             }
 
-            Spacer(modifier = Modifier.height(54.dp))
+            Spacer(modifier = Modifier.height(74.dp))
 
             Text(
                 text = "By continuing, you agree to Cue's Privacy Policy and User Agreement.",
@@ -183,12 +215,7 @@ fun PermissionsScreen(
                 .padding(24.dp),
             verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
-            Buttons.GradientButton(
-                text = "Agree & Continue",
-                onClick = onComplete,
-                icon = Icons.Filled.ArrowForward,
-                modifier = Modifier.fillMaxWidth().height(56.dp)
-            )
+            Buttons.GradientButton("Continue", null , onComplete, Modifier.fillMaxWidth().height(56.dp))
             Button(
                 onClick = onCustomizeLater,
                 colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.surfaceContainerHigh),
@@ -212,7 +239,7 @@ fun PermissionCard(
     description: String,
     icon: ImageVector,
     isEnabled: Boolean,
-    onToggle: (Boolean) -> Unit,
+    onToggle: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     Box(
@@ -221,7 +248,7 @@ fun PermissionCard(
             .clip(RoundedCornerShape(16.dp))
             .background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.4f))
             .border(1.dp, Color.White.copy(alpha = 0.05f), RoundedCornerShape(16.dp))
-            .clickable { onToggle(!isEnabled) }
+            .clickable { onToggle() }
             .padding(12.dp)
     ) {
         Column(modifier = Modifier.fillMaxSize(), verticalArrangement = Arrangement.SpaceBetween) {

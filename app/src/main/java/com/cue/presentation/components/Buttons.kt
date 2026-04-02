@@ -27,7 +27,7 @@ object Buttons {
     @Composable
     fun GradientButton(
         text: String,
-        icon: ImageVector,
+        icon: ImageVector?,
         onClick: () -> Unit,
         modifier: Modifier = Modifier
     ) {
@@ -60,7 +60,7 @@ object Buttons {
                     )
                     Spacer(modifier = Modifier.width(8.dp))
                     Icon(
-                        icon,
+                        icon ?: return@Row,
                         contentDescription = null,
                         tint = MaterialTheme.colorScheme.onPrimary
                     )
