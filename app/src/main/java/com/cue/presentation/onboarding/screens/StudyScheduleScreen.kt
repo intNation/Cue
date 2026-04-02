@@ -12,6 +12,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowForward
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material.icons.filled.KeyboardArrowUp
@@ -27,14 +28,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.cue.domain.model.DaySchedule
-import com.cue.presentation.theme.md_theme_dark_inverseOnSurface
-import com.cue.presentation.theme.md_theme_dark_inversePrimary
-import com.cue.presentation.theme.md_theme_dark_inverseSurface
-import com.cue.presentation.theme.md_theme_dark_primary
-import com.cue.presentation.theme.surface_container_high
-import com.cue.presentation.theme.surface_container_highest
-import com.cue.presentation.theme.surface_container_low
-import com.cue.presentation.theme.surface_container_lowest
+import com.cue.presentation.components.Buttons
 
 @Composable
 fun StudyScheduleScreen(
@@ -199,11 +193,7 @@ fun StudyScheduleScreen(
                 .padding(horizontal = 24.dp)
                 .padding(bottom = 32.dp, top = 24.dp)
         ) {
-            GradientButton(
-                text = "Continue",
-                onClick = onContinue,
-                modifier = Modifier.fillMaxWidth().height(64.dp)
-            )
+            Buttons.GradientButton("Continue", Icons.AutoMirrored.Filled.ArrowForward, onContinue, Modifier.fillMaxWidth().height(64.dp))
         }
     }
 }

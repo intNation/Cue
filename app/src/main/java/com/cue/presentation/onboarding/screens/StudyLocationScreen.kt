@@ -10,7 +10,6 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowForward
-import androidx.compose.material.icons.filled.ArrowForward
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.LocationOn
@@ -28,6 +27,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.cue.domain.model.StudyLocation
+import com.cue.presentation.components.Buttons
 import com.cue.presentation.theme.surface_container_highest
 import com.cue.presentation.theme.surface_container_low
 
@@ -166,11 +166,7 @@ fun StudyLocationScreen(
                 .padding(horizontal = 24.dp)
                 .padding(bottom = 32.dp, top = 24.dp)
         ) {
-            GradientButton(
-                text = "Continue",
-                onClick = onContinue,
-                modifier = Modifier.fillMaxWidth().height(64.dp)
-            )
+            Buttons.GradientButton("Continue", Icons.AutoMirrored.Filled.ArrowForward, onContinue, Modifier.fillMaxWidth().height(64.dp))
         }
     }
 }
@@ -274,46 +270,3 @@ fun LocationCard(
     }
 }
 
-@Composable
-fun GradientButton(
-    text: String,
-    onClick: () -> Unit,
-    modifier: Modifier = Modifier
-) {
-    Button(
-        onClick = onClick,
-        contentPadding = PaddingValues(),
-        colors = ButtonDefaults.buttonColors(containerColor = Color.Transparent),
-        shape = RoundedCornerShape(32.dp),
-        modifier = modifier
-    ) {
-        Box(
-            modifier = Modifier
-                .fillMaxSize()
-                .background(
-                    Brush.linearGradient(
-                        colors = listOf(
-                            MaterialTheme.colorScheme.primary,
-                            MaterialTheme.colorScheme.inversePrimary
-                        )
-                    )
-                ),
-            contentAlignment = Alignment.Center
-        ) {
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                Text(
-                    text = text,
-                    style = MaterialTheme.typography.titleMedium,
-                    fontWeight = FontWeight.ExtraBold,
-                    color = MaterialTheme.colorScheme.onPrimary
-                )
-                Spacer(modifier = Modifier.width(8.dp))
-                Icon(
-                    Icons.AutoMirrored.Filled.ArrowForward,
-                    contentDescription = null,
-                    tint = MaterialTheme.colorScheme.onPrimary
-                )
-            }
-        }
-    }
-}

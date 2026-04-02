@@ -46,6 +46,7 @@ import com.cue.presentation.main.MainViewModel
 import com.cue.presentation.onboarding.OnboardingViewModel
 import com.cue.presentation.onboarding.screens.StudyLocationScreen
 import com.cue.presentation.onboarding.screens.StudyScheduleScreen
+import com.cue.presentation.onboarding.screens.SuccessMetricScreen
 import com.cue.presentation.theme.CueTheme
 
 class MainActivity : ComponentActivity() {
@@ -110,9 +111,13 @@ class MainActivity : ComponentActivity() {
                         2 -> StudyScheduleScreen(
                             weeklySchedule = onboardingState.weeklySchedule,
                             onScheduleChange = { onboardingViewModel.onScheduleChange(it) },
-                            onContinue = { 
-                                onboardingViewModel.completeOnboarding() 
-                            },
+                            onContinue = { onboardingViewModel.nextStep() },
+                            onBack = { onboardingViewModel.previousStep() }
+                        )
+                        3 -> SuccessMetricScreen(
+                            selectedMetric = onboardingState.successMetric,
+                            onMetricSelect = { onboardingViewModel.onSuccessMetricSelect(it) },
+                            onComplete = { onboardingViewModel.completeOnboarding() },
                             onBack = { onboardingViewModel.previousStep() }
                         )
                     }
