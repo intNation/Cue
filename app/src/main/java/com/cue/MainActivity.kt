@@ -44,6 +44,7 @@ import com.cue.domain.usecase.StartSessionUseCase
 import com.cue.domain.usecase.SubmitDailyCheckInUseCase
 import com.cue.presentation.main.MainViewModel
 import com.cue.presentation.onboarding.OnboardingViewModel
+import com.cue.presentation.onboarding.screens.PermissionsScreen
 import com.cue.presentation.onboarding.screens.StudyLocationScreen
 import com.cue.presentation.onboarding.screens.StudyScheduleScreen
 import com.cue.presentation.onboarding.screens.SuccessMetricScreen
@@ -74,7 +75,7 @@ class MainActivity : ComponentActivity() {
                     StartSessionUseCase(sessionRepo, contextEngine, snapshotRepo),
                     EndSessionUseCase(sessionRepo),
                     GetActiveSessionUseCase(sessionRepo),
-                    CleanupStaleSessionsUseCase(sessionRepo),
+                    com.cue.domain.usecase.CleanupStaleSessionsUseCase(sessionRepo),
                     SubmitDailyCheckInUseCase(checkInRepo)
                 ) as T
             }
@@ -117,8 +118,20 @@ class MainActivity : ComponentActivity() {
                         3 -> SuccessMetricScreen(
                             selectedMetric = onboardingState.successMetric,
                             onMetricSelect = { onboardingViewModel.onSuccessMetricSelect(it) },
-                            onComplete = { onboardingViewModel.completeOnboarding() },
+                            onComplete = { onboardingViewModel.nextStep() },
                             onBack = { onboardingViewModel.previousStep() }
+                        )
+                        4 -> PermissionsScreen(
+                            locationEnabled = onboardingState.locationEnabled,
+                            calendarEnabled = onboardingState.calendarEnabled,
+                            sleepEnabled = onboardingState.sleepEnabled,
+                            movementEnabled = onboardingState.movementEnabled,
+                            onLocationToggle = { onboardingViewModel.toggleLocationPermission(it) },
+                            onCalendarToggle = { onboardingViewModel.toggleCalendarPermission(it) },
+                            onSleepToggle = { onboardingViewModel.toggleSleepPermission(it) },
+                            onMovementToggle = { onboardingViewModel.toggleMovementPermission(it) },
+                            onComplete = { onboardingViewModel.completeOnboarding() },
+                            onCustomizeLater = { onboardingViewModel.completeOnboarding() }
                         )
                     }
                 } else {
