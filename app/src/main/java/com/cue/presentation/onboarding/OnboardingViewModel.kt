@@ -20,6 +20,10 @@ data class OnboardingUiState(
     val selectedLocations: List<StudyLocation> = emptyList(),
     val weeklySchedule: List<DaySchedule> = emptyList(),
     val successMetric: SuccessMetric? = null,
+    val locationEnabled: Boolean = false,
+    val calendarEnabled: Boolean = false,
+    val sleepEnabled: Boolean = false,
+    val movementEnabled: Boolean = false,
     val isSaving: Boolean = false,
     val onboardingCompleted: Boolean = false
 )
@@ -53,6 +57,22 @@ class OnboardingViewModel(
         _uiState.update { it.copy(successMetric = metric) }
     }
 
+    fun toggleLocationPermission(enabled: Boolean) {
+        _uiState.update { it.copy(locationEnabled = enabled) }
+    }
+
+    fun toggleCalendarPermission(enabled: Boolean) {
+        _uiState.update { it.copy(calendarEnabled = enabled) }
+    }
+
+    fun toggleSleepPermission(enabled: Boolean) {
+        _uiState.update { it.copy(sleepEnabled = enabled) }
+    }
+
+    fun toggleMovementPermission(enabled: Boolean) {
+        _uiState.update { it.copy(movementEnabled = enabled) }
+    }
+
     fun nextStep() {
         _uiState.update { it.copy(currentStep = it.currentStep + 1) }
     }
@@ -72,7 +92,11 @@ class OnboardingViewModel(
             saveUserOnboardingUseCase(
                 preferredLocations = state.selectedLocations,
                 weeklySchedule = state.weeklySchedule,
-                successMetric = metric
+                successMetric = metric,
+                locationEnabled = state.locationEnabled,
+                calendarEnabled = state.calendarEnabled,
+                sleepEnabled = state.sleepEnabled,
+                movementEnabled = state.movementEnabled
             )
             _uiState.update { it.copy(isSaving = false, onboardingCompleted = true) }
         }

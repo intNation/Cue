@@ -20,7 +20,11 @@ fun UserWithDetails.toDomain() = User(
     preferredLocations = locations.map { StudyLocation.valueOf(it.location) },
     weeklySchedule = schedules.map { it.toDomain() },
     successMetric = user.successMetric?.let { SuccessMetric.valueOf(it) },
-    isOnboardingCompleted = user.isOnboardingCompleted
+    isOnboardingCompleted = user.isOnboardingCompleted,
+    locationEnabled = user.locationEnabled,
+    calendarEnabled = user.calendarEnabled,
+    sleepEnabled = user.sleepEnabled,
+    movementEnabled = user.movementEnabled
 )
 
 /**
@@ -43,6 +47,10 @@ fun User.toEntity() = UserEntity(
     email = email,
     successMetric = successMetric?.name,
     isOnboardingCompleted = isOnboardingCompleted,
+    locationEnabled = locationEnabled,
+    calendarEnabled = calendarEnabled,
+    sleepEnabled = sleepEnabled,
+    movementEnabled = movementEnabled,
     createdAt = System.currentTimeMillis()
 )
 

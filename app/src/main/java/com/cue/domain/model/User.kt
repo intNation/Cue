@@ -28,5 +28,9 @@ data class User(
     val preferredLocations: List<StudyLocation> = emptyList(),
     val weeklySchedule: List<DaySchedule> = emptyList(),
     val successMetric: SuccessMetric? = null,
-    val isOnboardingCompleted: Boolean = false
+    val isOnboardingCompleted: Boolean = false,
+    val locationEnabled: Boolean = false,
+    val calendarEnabled: Boolean = false,
+    val sleepEnabled: Boolean = false,
+    val movementEnabled: Boolean = false
 )

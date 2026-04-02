@@ -22,7 +22,7 @@ import com.cue.data.local.entity.WeeklyScheduleEntity
         StudyLocationEntity::class,
         WeeklyScheduleEntity::class
     ],
-    version = 4,
+    version = 5,
     exportSchema = false
 )
 abstract class CueDatabase : RoomDatabase() {

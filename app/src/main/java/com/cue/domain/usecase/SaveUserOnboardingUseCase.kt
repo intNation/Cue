@@ -17,21 +17,33 @@ class SaveUserOnboardingUseCase(
      * @param preferredLocations The list of study locations from Step 1.
      * @param weeklySchedule The list of day schedules from Step 2.
      * @param successMetric The chosen success metric from Step 3.
+     * @param locationEnabled Whether location-based signals are enabled.
+     * @param calendarEnabled Whether calendar-based signals are enabled.
+     * @param sleepEnabled Whether sleep-based signals are enabled.
+     * @param movementEnabled Whether movement-based signals are enabled.
      */
     suspend operator fun invoke(
         preferredLocations: List<StudyLocation>,
         weeklySchedule: List<DaySchedule>,
-        successMetric: SuccessMetric
+        successMetric: SuccessMetric,
+        locationEnabled: Boolean,
+        calendarEnabled: Boolean,
+        sleepEnabled: Boolean,
+        movementEnabled: Boolean
     ): Long {
         // Retrieve existing user if any, or create a new one
         val existingUser = repository.getCurrentUser() ?: User()
 
-        // Update user with their study locations, schedule, and success metric,and set the isOnboardingCompleted flag to true
+        // Update user with their study locations, schedule, success metric, and permissions
         val updatedUser = existingUser.copy(
             preferredLocations = preferredLocations,
             weeklySchedule = weeklySchedule,
             successMetric = successMetric,
-            isOnboardingCompleted = true
+            isOnboardingCompleted = true,
+            locationEnabled = locationEnabled,
+            calendarEnabled = calendarEnabled,
+            sleepEnabled = sleepEnabled,
+            movementEnabled = movementEnabled
         )
 
         //save the updated user with their onboarding data to room database

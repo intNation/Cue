@@ -34,6 +34,18 @@ data class UserEntity(
     @ColumnInfo(name = "is_onboarding_completed")
     val isOnboardingCompleted: Boolean = false,
 
+    @ColumnInfo(name = "location_enabled")
+    val locationEnabled: Boolean = false,
+
+    @ColumnInfo(name = "calendar_enabled")
+    val calendarEnabled: Boolean = false,
+
+    @ColumnInfo(name = "sleep_enabled")
+    val sleepEnabled: Boolean = false,
+
+    @ColumnInfo(name = "movement_enabled")
+    val movementEnabled: Boolean = false,
+
     @ColumnInfo(name = "created_at")
     val createdAt: Long = System.currentTimeMillis()
 )
