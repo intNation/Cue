@@ -12,5 +12,6 @@ data class Insight(
     val id: Long = 0,
     val userId: Long,
     val message: String,
-    val type: String
+    val type: insightType,
+    val timestamp: Long
 )

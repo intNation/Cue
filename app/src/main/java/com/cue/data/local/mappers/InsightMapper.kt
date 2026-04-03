@@ -7,7 +7,8 @@ fun InsightEntity.toDomain() = Insight(
     id = id,
     userId = userId,
     message = message,
-    type = type
+    type = type,
+    timestamp = timestamp
 )
 
 
@@ -15,5 +16,6 @@ fun Insight.toEntity() = InsightEntity(
     id = id,
     userId = userId,
     message = message,
-    type = type
+    type = type,
+    timestamp = timestamp
 )

@@ -26,5 +26,7 @@ data class InsightEntity(
 
     @ColumnInfo(name = "type")
     val type: String,
+    @ColumnInfo(name = "timestamp")
+    val timestamp: Long
 
 )
