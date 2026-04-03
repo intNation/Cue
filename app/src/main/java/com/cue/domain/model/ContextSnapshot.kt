@@ -12,10 +12,12 @@ package com.cue.domain.model
  */
 data class ContextSnapshot(
     val id: Long = 0,
-    val sessionId: Long,
+    val sessionId: Long?, //we do not need a session to capture context snapshot
     val phoneUsage: String, // Dummy: "High", "Medium", "Low"
     val connectivity: String, // Dummy: "WiFi", "Cellular", "None"
     val sleep: Int, // Mocked
     val weather: String, // Dummy: "Sunny", "Rainy", "Cloudy"
-    val confidenceScore: Float
+    val confidenceScore: Float,
+    //added a timestamp to track when signals were collected
+    val timestamp: Long
 )

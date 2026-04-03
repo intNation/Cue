@@ -30,7 +30,7 @@ data class ContextSnapshotEntity(
     val id: Long = 0,
 
     @ColumnInfo(name = "session_id")
-    val sessionId: Long,
+    val sessionId: Long?, //make nullable to allow for context snapshots without needing a study session
 
     @ColumnInfo(name = "phone_usage")
     val phoneUsage: String,
@@ -45,6 +45,12 @@ data class ContextSnapshotEntity(
     val weather: String,
 
     @ColumnInfo(name = "confidence_score")
-    val confidenceScore: Float
+    val confidenceScore: Float,
+
+    //added a timestamp to track when signals were collected
+    @ColumnInfo(name = "timestamp")
+    val timestamp: Long
+
+
 )
 

@@ -37,7 +37,8 @@ class ContextSnapShotRepositoryImpl(val dao: ContextSnapshotDao) : ContextSnapSh
             connectivity = snapshot.connectivity,
             sleep = snapshot.sleep,
             weather = snapshot.weather,
-            confidenceScore = snapshot.confidenceScore
+            confidenceScore = snapshot.confidenceScore,
+            timestamp = snapshot.timestamp
         )
         return dao.insertSnapshot(entity)
     }

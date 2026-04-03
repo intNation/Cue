@@ -20,7 +20,9 @@ class MockContextEngine : ContextEngine {
             connectivity = connectivities.random(),
             weather = weathers.random(),
             sleep = sleep.random(), // Mocked
-            confidenceScore = 0.85f // Static confidence for V1
+            confidenceScore = 0.85f,// Static confidence for V1,
+            timestamp = System.currentTimeMillis(),
+
         )
     }
 }

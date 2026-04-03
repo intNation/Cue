@@ -4,10 +4,12 @@ import androidx.room.Database
 import androidx.room.RoomDatabase
 import com.cue.data.local.dao.ContextSnapshotDao
 import com.cue.data.local.dao.DailyCheckInDao
+import com.cue.data.local.dao.InsightDao
 import com.cue.data.local.dao.StudySessionDao
 import com.cue.data.local.dao.UserDao
 import com.cue.data.local.entity.ContextSnapshotEntity
 import com.cue.data.local.entity.DailyCheckInEntity
+import com.cue.data.local.entity.InsightEntity
 import com.cue.data.local.entity.StudyLocationEntity
 import com.cue.data.local.entity.StudySessionEntity
 import com.cue.data.local.entity.UserEntity
@@ -20,9 +22,10 @@ import com.cue.data.local.entity.WeeklyScheduleEntity
         ContextSnapshotEntity::class,
         DailyCheckInEntity::class,
         StudyLocationEntity::class,
-        WeeklyScheduleEntity::class
+        WeeklyScheduleEntity::class,
+        InsightEntity::class
     ],
-    version = 5,
+    version = 6,
     exportSchema = false
 )
 abstract class CueDatabase : RoomDatabase() {
@@ -30,4 +33,6 @@ abstract class CueDatabase : RoomDatabase() {
     abstract fun userDao(): UserDao
     abstract fun contextSnapshotDao(): ContextSnapshotDao
     abstract fun dailyCheckInDao(): DailyCheckInDao
+
+    abstract  fun insightDao(): InsightDao
 }

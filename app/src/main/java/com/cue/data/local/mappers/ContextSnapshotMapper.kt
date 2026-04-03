@@ -15,6 +15,7 @@ fun ContextSnapshotEntity.toDomain() = ContextSnapshot(
     weather = weather,
     sleep = sleep,
     confidenceScore = confidenceScore,
+    timestamp = timestamp
 )
 
 /**
@@ -28,5 +29,6 @@ fun ContextSnapshot.toDomain() = ContextSnapshotEntity(
     connectivity = connectivity,
     weather = weather,
     confidenceScore = confidenceScore,
-    sleep = sleep
+    sleep = sleep,
+    timestamp = timestamp
 )
