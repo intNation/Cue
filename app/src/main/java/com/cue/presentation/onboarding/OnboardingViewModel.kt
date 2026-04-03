@@ -1,7 +1,9 @@
 package com.cue.presentation.onboarding
 
-import androidx.lifecycle.ViewModel
+import android.app.Application
+import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
+import com.cue.core.util.ScheduleManager
 import com.cue.domain.model.DaySchedule
 import com.cue.domain.model.StudyLocation
 import com.cue.domain.model.SuccessMetric
@@ -29,11 +31,12 @@ data class OnboardingUiState(
 )
 
 /**
- * ViewModel for managing the 3-step onboarding flow.
+ * ViewModel for managing the 4-step onboarding flow.
  */
 class OnboardingViewModel(
+    application: Application,
     private val saveUserOnboardingUseCase: SaveUserOnboardingUseCase
-) : ViewModel() {
+) : AndroidViewModel(application) {
 
     private val _uiState = MutableStateFlow(OnboardingUiState())
     val uiState: StateFlow<OnboardingUiState> = _uiState.asStateFlow()
@@ -98,6 +101,10 @@ class OnboardingViewModel(
                 sleepEnabled = state.sleepEnabled,
                 movementEnabled = state.movementEnabled
             )
+            
+            // Start background context polling
+            ScheduleManager(getApplication()).updateSchedule(state.weeklySchedule)
+            
             _uiState.update { it.copy(isSaving = false, onboardingCompleted = true) }
         }
     }

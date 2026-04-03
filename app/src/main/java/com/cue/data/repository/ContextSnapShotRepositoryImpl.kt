@@ -42,4 +42,8 @@ class ContextSnapShotRepositoryImpl(val dao: ContextSnapshotDao) : ContextSnapSh
         )
         return dao.insertSnapshot(entity)
     }
+
+    override suspend fun getAllSnapshots(): List<ContextSnapshot> {
+        return dao.getAllSnapshots().map { it.toDomain() }
+    }
 }

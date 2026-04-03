@@ -28,4 +28,7 @@ interface ContextSnapshotDao {
      */
     @Query("SELECT * FROM ContextSnapshot WHERE session_id = :sessionId")
     suspend fun getSnapshotBySessionId(sessionId: Long): ContextSnapshotEntity?
+
+    @Query("SELECT * FROM ContextSnapshot ORDER BY timestamp DESC")
+    suspend fun getAllSnapshots(): List<ContextSnapshotEntity>
 }

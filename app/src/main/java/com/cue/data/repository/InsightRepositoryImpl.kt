@@ -20,7 +20,7 @@ class InsightRepositoryImpl(val dao : InsightDao) : InsightRepository  {
     }
 
     override suspend fun getUserInsights(userId: Long): List<Insight> {
-        return dao.getUserInsights(userId).map { it.toDomain() }
+        return dao.getUserInsights(userId)?.map { it.toDomain() } ?: emptyList()
     }
 
     override suspend fun getInsightById(insightId: Long): Insight? {

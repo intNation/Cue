@@ -1,5 +1,6 @@
 import org.gradle.api.JavaVersion
 import org.gradle.kotlin.dsl.implementation
+import org.jetbrains.kotlin.gradle.plugin.KotlinSourceSetTree.Companion.test
 
 plugins {
     alias(libs.plugins.android.application)
@@ -59,8 +60,12 @@ dependencies {
     implementation(libs.androidx.compose.material3)
     implementation(libs.androidx.room.common.jvm)
     implementation("androidx.compose.material:material-icons-extended")
+    implementation(libs.androidx.work.runtime.ktx)
 
     testImplementation(libs.junit)
+    testImplementation(libs.test.mockk)
+    testImplementation(libs.test.coroutines)
+    testImplementation(libs.test.turbine)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
     androidTestImplementation(platform(libs.androidx.compose.bom))
