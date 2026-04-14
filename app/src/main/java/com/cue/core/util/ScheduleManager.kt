@@ -9,6 +9,10 @@ import com.cue.domain.model.DaySchedule
 import java.util.Calendar
 import java.util.concurrent.TimeUnit
 
+/**
+ * Schedules the next context polling event based on the user's weekly schedule.
+ * If the schedule is empty, cancels any existing polling.
+ */
 class ScheduleManager(private val context: Context) {
 
     /**
