@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              "primary": "#7bd0ff",
+              "primary-dim": "#3c608f",
+              "background": "#0F172A",
+              "surface": "#1E293B",
+              "surface-variant": "#334155",
+              "on-surface": "#F8FAFC",
+              "on-surface-variant": "#94A3B8",
+              "outline": "#475569"
+            },
+            fontFamily: {
+              "headline": ["Manrope", "sans-serif"],
+              "body": ["Manrope", "sans-serif"],
+              "label": ["Manrope", "sans-serif"]
+            },
+            borderRadius: {
+              "DEFAULT": "0.5rem",
+              "lg": "0.75rem",
+              "xl": "1rem",
+              "full": "9999px"
+            },
+          },
+        },
+      }
+    </script>
+<style>
+      body { 
+        font-family: 'Manrope', sans-serif; 
+        background-color: #0F172A;
+      }
+      .material-symbols-outlined {
+        font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+      }
+      .glass-card {
+        background: rgba(30, 41, 59, 0.7);
+        backdrop-filter: blur(12px);
+        border: 1px solid rgba(255, 255, 255, 0.05);
+      }
+    </style>
+</head>
+<body class="bg-background text-on-surface min-h-screen pb-32">
+<!-- TopAppBar: Cue Sapphire Style -->
+<header class="flex justify-between items-center w-full px-6 py-5 sticky top-0 z-50 bg-background/80 backdrop-blur-md border-b border-white/5">
+<div class="flex items-center gap-3">
+<div class="w-9 h-9 rounded-lg overflow-hidden ring-1 ring-white/10">
+<img alt="User profile photo" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCZvxwPC2tqEZ7BcqO4dbWQMCr3RaGbZoNZNwOGcgZMIlcvRBxFeTvL_Ayx-2FfSqdagyAd0BgPSlEPnwzXVQAV9C7VJ5BO0dOEGDEXwZxnW4QhA3_exyavjNyP1TEZg87FVz2RhM8pVO4cuRhgSNeSK5bTORRCIkKus5kmeIMTFIe_HVTqhU4h0vQlrYFuqkeAdtEc3H1jXwfGlJm9OYEkm1QJBf9u6CmbcCrcakP_ad0t-gaoXbxgCS9XL0sNBZlIVSEO6jCQmKhA"/>
+</div>
+<span class="text-lg font-bold tracking-tight text-on-surface">Cue</span>
+</div>
+<button class="w-10 h-10 flex items-center justify-center rounded-lg hover:bg-surface-variant/50 transition-colors active:scale-95 text-on-surface-variant">
+<span class="material-symbols-outlined text-[22px]" data-icon="settings">settings</span>
+</button>
+</header>
+<main class="px-6 max-w-2xl mx-auto">
+<!-- Hero Section -->
+<section class="mt-8 mb-10">
+<h1 class="text-[32px] font-extrabold tracking-tight text-on-surface leading-tight">Weekly Patterns</h1>
+<p class="text-on-surface-variant mt-2 font-medium">Objective focus data for Mar 12 – Mar 19</p>
+</section>
+<!-- Bento Grid Insights -->
+<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+<!-- Correlation Card (Large) -->
+<div class="md:col-span-2 p-6 rounded-xl bg-surface/40 border border-white/5 shadow-xl">
+<div class="flex justify-between items-start mb-8">
+<div class="flex flex-col gap-1.5">
+<span class="text-[10px] font-bold uppercase tracking-[0.1em] text-primary">Behavioral Correlation</span>
+<h3 class="text-lg font-bold text-on-surface leading-snug max-w-[85%]">Sessions started after 20:00 correlate with 45% higher phone usage.</h3>
+</div>
+<div class="flex flex-col items-end">
+<span class="text-2xl font-extrabold text-primary">88%</span>
+<span class="text-[9px] font-bold uppercase tracking-wider text-on-surface-variant">Confidence</span>
+</div>
+</div>
+<!-- Visualization -->
+<div class="flex items-end gap-2.5 h-32 w-full px-1">
+<div class="flex-1 bg-surface-variant/30 rounded-t-md relative group h-[40%] transition-all">
+<div class="absolute -top-6 left-1/2 -translate-x-1/2 text-[10px] font-bold text-on-surface-variant opacity-0 group-hover:opacity-100 transition-opacity">08:00</div>
+</div>
+<div class="flex-1 bg-surface-variant/30 rounded-t-md h-[35%]"></div>
+<div class="flex-1 bg-surface-variant/30 rounded-t-md h-[45%]"></div>
+<div class="flex-1 bg-surface-variant/30 rounded-t-md h-[55%]"></div>
+<div class="flex-1 bg-primary/40 rounded-t-md relative h-[85%]">
+<div class="absolute -top-6 left-1/2 -translate-x-1/2 text-[10px] font-bold text-primary/80">20:00</div>
+</div>
+<div class="flex-1 bg-primary rounded-t-md relative h-[100%]">
+<div class="absolute -top-6 left-1/2 -translate-x-1/2 text-[10px] font-bold text-primary">22:00</div>
+</div>
+</div>
+<div class="flex justify-between mt-4 px-1">
+<span class="text-[10px] font-bold text-on-surface-variant/60 uppercase tracking-widest">Morning</span>
+<span class="text-[10px] font-bold text-on-surface-variant/60 uppercase tracking-widest">Night</span>
+</div>
+</div>
+<!-- Micro Observation 1 -->
+<div class="p-6 rounded-xl bg-surface/40 border border-white/5 flex flex-col justify-between min-h-[190px]">
+<div>
+<div class="flex justify-between items-center mb-5">
+<div class="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center">
+<span class="material-symbols-outlined text-primary text-xl" data-icon="timer">timer</span>
+</div>
+<div class="text-right">
+<span class="block text-xl font-extrabold text-on-surface">94%</span>
+<span class="text-[9px] font-bold text-on-surface-variant uppercase tracking-wider">Confidence</span>
+</div>
+</div>
+<p class="text-[15px] text-on-surface font-semibold leading-relaxed">Average session length decreases by 12m on Tuesdays.</p>
+</div>
+<div class="mt-5 h-1.5 w-full bg-surface-variant/20 rounded-full overflow-hidden">
+<div class="h-full bg-primary rounded-full w-[94%]"></div>
+</div>
+</div>
+<!-- Micro Observation 2 -->
+<div class="p-6 rounded-xl bg-surface/40 border border-white/5 flex flex-col justify-between min-h-[190px]">
+<div>
+<div class="flex justify-between items-center mb-5">
+<div class="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center">
+<span class="material-symbols-outlined text-primary text-xl" data-icon="battery_horiz_075">battery_horiz_075</span>
+</div>
+<div class="text-right">
+<span class="block text-xl font-extrabold text-on-surface">72%</span>
+<span class="text-[9px] font-bold text-on-surface-variant uppercase tracking-wider">Confidence</span>
+</div>
+</div>
+<p class="text-[15px] text-on-surface font-semibold leading-relaxed">Device battery below 20% precedes 30% of session abandons.</p>
+</div>
+<div class="mt-5 h-1.5 w-full bg-surface-variant/20 rounded-full overflow-hidden">
+<div class="h-full bg-primary rounded-full w-[72%]"></div>
+</div>
+</div>
+<!-- Environmental Impact -->
+<div class="md:col-span-2 p-6 rounded-xl bg-surface/20 border border-white/5">
+<div class="flex items-center gap-5">
+<div class="flex -space-x-3">
+<div class="w-12 h-12 rounded-lg bg-primary flex items-center justify-center text-background shadow-lg ring-4 ring-background">
+<span class="material-symbols-outlined text-xl font-bold" data-icon="cloud">cloud</span>
+</div>
+<div class="w-12 h-12 rounded-lg bg-surface-variant flex items-center justify-center text-primary shadow-lg ring-4 ring-background">
+<span class="material-symbols-outlined text-xl" data-icon="laptop_chromebook">laptop_chromebook</span>
+</div>
+</div>
+<div class="flex-1">
+<div class="flex justify-between items-baseline mb-1">
+<h4 class="font-bold text-on-surface">Environmental Influence</h4>
+<span class="text-[10px] font-bold text-primary tracking-wider uppercase">61% Confidence</span>
+</div>
+<p class="text-sm text-on-surface-variant leading-relaxed">Precipitation correlates with a 15% increase in Desktop sessions over Mobile.</p>
+</div>
+</div>
+</div>
+<!-- Premium Highlight -->
+<div class="md:col-span-2 bg-gradient-to-br from-[#1E293B] to-[#0F172A] p-8 rounded-xl border border-primary/20 text-on-surface relative overflow-hidden shadow-2xl">
+<!-- Texture -->
+<div class="absolute inset-0 opacity-[0.03] pointer-events-none" style="background-image: radial-gradient(circle at 2px 2px, #7bd0ff 1px, transparent 0); background-size: 20px 20px;"></div>
+<div class="relative z-10">
+<div class="flex justify-between items-start mb-6">
+<span class="text-[10px] font-black uppercase tracking-[0.2em] text-primary/80">Critical Insight</span>
+<span class="text-[10px] font-bold bg-primary/20 text-primary px-3 py-1 rounded-full border border-primary/20">High Certainty</span>
+</div>
+<p class="text-2xl font-extrabold leading-tight">3+ consecutive sessions result in a 2.4x deeper focus state vs. isolated sessions.</p>
+<div class="mt-8 flex items-center gap-5">
+<div class="flex-1 h-2 bg-white/5 rounded-full overflow-hidden">
+<div class="h-full bg-primary shadow-[0_0_12px_rgba(123,208,255,0.4)] w-[91%] rounded-full"></div>
+</div>
+<span class="text-sm font-black text-primary">91%</span>
+</div>
+</div>
+</div>
+</div>
+</main>
+<!-- BottomNavBar: Cue Sapphire Style -->
+<nav class="fixed bottom-8 w-full flex justify-center items-center z-50 px-4">
+<div class="bg-slate-900/70 backdrop-blur-2xl w-[90%] max-w-md rounded-full border border-white/5 shadow-[0_20px_50px_rgba(8,_112,_184,_0.15)] flex justify-around items-center h-16 px-2">
+<!-- Focus Tab -->
+<a class="flex flex-col items-center justify-center text-slate-400 hover:text-slate-200 hover:scale-110 transition-transform active:scale-90 duration-150" href="#">
+<span class="material-symbols-outlined">timer</span>
+<span class="font-manrope text-[10px] font-semibold uppercase tracking-widest mt-0.5">Focus</span>
+</a>
+<!-- Insights Tab (Active) -->
+<a class="flex flex-col items-center justify-center bg-gradient-to-br from-sky-400 to-blue-600 text-slate-950 rounded-full w-12 h-12 shadow-lg shadow-sky-500/20 hover:scale-110 transition-transform active:scale-90 duration-150" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">query_stats</span>
+<span class="hidden">Insights</span>
+</a>
+<!-- Profile Tab -->
+<a class="flex flex-col items-center justify-center text-slate-400 hover:text-slate-200 hover:scale-110 transition-transform active:scale-90 duration-150" href="#">
+<span class="material-symbols-outlined">person</span>
+<span class="font-manrope text-[10px] font-semibold uppercase tracking-widest mt-0.5">Profile</span>
+</a>
+<!-- Settings Tab -->
+<a class="flex flex-col items-center justify-center text-slate-400 hover:text-slate-200 hover:scale-110 transition-transform active:scale-90 duration-150" href="#">
+<span class="material-symbols-outlined">settings</span>
+<span class="font-manrope text-[10px] font-semibold uppercase tracking-widest mt-0.5">Settings</span>
+</a>
+</div>
+</nav>
+</body></html>

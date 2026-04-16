@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Sanctuary | Onboarding</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@500;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              "surface-container-low": "#191c1f",
+              "on-primary-fixed": "#001d34",
+              "on-primary-fixed-variant": "#004a79",
+              "on-tertiary-fixed-variant": "#653e00",
+              "on-tertiary": "#462a00",
+              "surface-container-high": "#282a2e",
+              "on-tertiary-fixed": "#2a1700",
+              "inverse-primary": "#00629f",
+              "tertiary-fixed": "#ffddb7",
+              "on-surface": "#e1e2e7",
+              "secondary-fixed-dim": "#b1cad9",
+              "primary": "#9acbff",
+              "on-primary-container": "#003c64",
+              "outline-variant": "#3f4751",
+              "secondary": "#b1cad9",
+              "on-secondary-fixed": "#041e2a",
+              "surface-tint": "#9acbff",
+              "on-error-container": "#ffdad6",
+              "surface-container-lowest": "#0c0e12",
+              "tertiary-fixed-dim": "#ffb95c",
+              "surface-dim": "#111417",
+              "on-secondary-fixed-variant": "#334a56",
+              "secondary-container": "#354c59",
+              "error": "#ffb4ab",
+              "tertiary": "#ffb95c",
+              "surface": "#111417",
+              "surface-container": "#1d2023",
+              "surface-container-highest": "#323539",
+              "inverse-surface": "#e1e2e7",
+              "on-background": "#e1e2e7",
+              "tertiary-container": "#e29200",
+              "surface-variant": "#323539",
+              "on-secondary": "#1c333f",
+              "on-tertiary-container": "#533300",
+              "primary-fixed": "#d0e4ff",
+              "secondary-fixed": "#cde6f6",
+              "on-primary": "#003355",
+              "inverse-on-surface": "#2e3134",
+              "surface-bright": "#37393d",
+              "primary-fixed-dim": "#9acbff",
+              "primary-container": "#40a9ff",
+              "background": "#111417",
+              "on-secondary-container": "#a3bccb",
+              "outline": "#89919d",
+              "on-surface-variant": "#bfc7d3",
+              "on-error": "#690005",
+              "error-container": "#93000a"
+            },
+            fontFamily: {
+              "headline": ["Manrope"],
+              "body": ["Manrope"],
+              "label": ["Manrope"]
+            },
+            borderRadius: {"DEFAULT": "0.125rem", "lg": "0.25rem", "xl": "0.5rem", "full": "0.75rem"},
+          },
+        },
+      }
+    </script>
+<style>
+        .glass-card {
+            backdrop-filter: blur(20px);
+            background: rgba(29, 32, 35, 0.6);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        .sapphire-glow {
+            box-shadow: 0 0 20px rgba(64, 169, 255, 0.15);
+        }
+        .inner-glow {
+            box-shadow: inset 0 1px 2px rgba(255, 255, 255, 0.3);
+        }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-surface font-body text-on-surface antialiased selection:bg-primary-container selection:text-on-primary-container">
+<!-- Top Navigation (Contextual Suppression of Main Nav for Onboarding) -->
+<header class="flex justify-between items-center w-full px-6 py-8 fixed top-0 z-50">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-primary-container" data-icon="menu_book">menu_book</span>
+<span class="font-headline font-bold tracking-tighter text-xl text-primary-container">Sanctuary</span>
+</div>
+<div class="text-on-surface-variant text-sm font-label tracking-widest uppercase">Step 01 / 03</div>
+</header>
+<main class="min-h-screen flex flex-col items-center justify-center px-6 pt-24 pb-32">
+<!-- Segmented Progress Bar -->
+<div class="w-full max-w-md mb-16 flex gap-1.5">
+<div class="h-1.5 flex-1 bg-primary-container rounded-sm sapphire-glow"></div>
+<div class="h-1.5 flex-1 bg-surface-variant rounded-sm"></div>
+<div class="h-1.5 flex-1 bg-surface-variant rounded-sm"></div>
+</div>
+<!-- Question Header -->
+<div class="w-full max-w-md mb-12">
+<h1 class="text-primary-fixed text-4xl md:text-5xl font-headline font-bold tracking-tight leading-tight mb-4">
+                Where do you usually study?
+            </h1>
+<p class="text-on-surface-variant text-lg font-medium tracking-tight">
+                Help us tailor your focus environment.
+            </p>
+</div>
+<!-- Location Options (Vertical Glassmorphic Cards) -->
+<div class="w-full max-w-md space-y-4">
+<!-- Option: Library (Selected State) -->
+<button class="glass-card w-full flex items-center p-5 rounded-xl text-left border-primary-container bg-primary-container/10 sapphire-glow group transition-all duration-300 relative overflow-hidden">
+<div class="absolute inset-0 bg-primary-container/5 animate-pulse"></div>
+<div class="w-12 h-12 rounded-lg bg-primary-container/20 flex items-center justify-center mr-4 relative z-10">
+<span class="material-symbols-outlined text-primary-container" data-icon="local_library">local_library</span>
+</div>
+<div class="flex-1 relative z-10">
+<span class="block text-primary-fixed font-bold tracking-tight">Library</span>
+<span class="block text-on-surface-variant text-sm font-medium">Quiet, communal atmosphere</span>
+</div>
+<div class="relative z-10">
+<span class="material-symbols-outlined text-primary-container" data-icon="check_circle" style="font-variation-settings: 'FILL' 1;">check_circle</span>
+</div>
+</button>
+<!-- Option: Home -->
+<button class="glass-card w-full flex items-center p-5 rounded-xl text-left hover:bg-surface-bright/40 transition-all duration-300 group">
+<div class="w-12 h-12 rounded-lg bg-surface-container-high flex items-center justify-center mr-4">
+<span class="material-symbols-outlined text-on-surface-variant group-hover:text-primary-container transition-colors" data-icon="home">home</span>
+</div>
+<div class="flex-1">
+<span class="block text-on-surface font-bold tracking-tight">Home</span>
+<span class="block text-on-surface-variant text-sm font-medium">Familiar, private space</span>
+</div>
+</button>
+<!-- Option: Cafe -->
+<button class="glass-card w-full flex items-center p-5 rounded-xl text-left hover:bg-surface-bright/40 transition-all duration-300 group">
+<div class="w-12 h-12 rounded-lg bg-surface-container-high flex items-center justify-center mr-4">
+<span class="material-symbols-outlined text-on-surface-variant group-hover:text-primary-container transition-colors" data-icon="coffee">coffee</span>
+</div>
+<div class="flex-1">
+<span class="block text-on-surface font-bold tracking-tight">Cafe</span>
+<span class="block text-on-surface-variant text-sm font-medium">White noise and energy</span>
+</div>
+</button>
+<!-- Option: Other -->
+<button class="glass-card w-full flex items-center p-5 rounded-xl text-left hover:bg-surface-bright/40 transition-all duration-300 group">
+<div class="w-12 h-12 rounded-lg bg-surface-container-high flex items-center justify-center mr-4">
+<span class="material-symbols-outlined text-on-surface-variant group-hover:text-primary-container transition-colors" data-icon="more_horiz">more_horiz</span>
+</div>
+<div class="flex-1">
+<span class="block text-on-surface font-bold tracking-tight">Other</span>
+<span class="block text-on-surface-variant text-sm font-medium">A unique personal nook</span>
+</div>
+</button>
+</div>
+<!-- Footer Action -->
+<div class="fixed bottom-0 left-0 w-full p-8 flex justify-center pointer-events-none">
+<div class="w-full max-w-md pointer-events-auto">
+<button class="w-full bg-primary-container text-on-primary-container font-headline font-bold py-5 rounded-xl flex items-center justify-center gap-2 sapphire-glow inner-glow hover:bg-primary transition-all duration-300 active:scale-95 group">
+<span>Continue Journey</span>
+<span class="material-symbols-outlined transition-transform group-hover:translate-x-1" data-icon="arrow_forward">arrow_forward</span>
+</button>
+</div>
+</div>
+</main>
+<!-- Decorative Elements for Sanctuary Depth -->
+<div class="fixed top-0 right-0 w-[500px] h-[500px] bg-primary-container/5 blur-[120px] -z-10 pointer-events-none"></div>
+<div class="fixed bottom-0 left-0 w-[400px] h-[400px] bg-primary-container/5 blur-[100px] -z-10 pointer-events-none"></div>
+</body></html>

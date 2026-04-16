@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Edit Profile - Nocturnal Clarity</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@200;300;400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "on-error-container": "#ffdad6",
+                        "on-secondary": "#263143",
+                        "error-container": "#93000a",
+                        "inverse-surface": "#dae2fd",
+                        "primary-fixed-dim": "#7bd0ff",
+                        "tertiary-fixed-dim": "#bdc2ff",
+                        "surface": "#0b1326",
+                        "surface-container-lowest": "#060e20",
+                        "on-surface": "#dae2fd",
+                        "on-secondary-fixed": "#111c2d",
+                        "on-tertiary-container": "#6c77e1",
+                        "on-surface-variant": "#c6c6cd",
+                        "surface-dim": "#0b1326",
+                        "outline-variant": "#45464d",
+                        "secondary": "#bcc7de",
+                        "on-tertiary": "#131e8c",
+                        "on-primary-fixed-variant": "#004c69",
+                        "on-secondary-container": "#aeb9d0",
+                        "surface-container-high": "#222a3d",
+                        "on-tertiary-fixed": "#000767",
+                        "tertiary-container": "#00055c",
+                        "surface-container": "#171f33",
+                        "secondary-container": "#3e495d",
+                        "surface-container-low": "#131b2e",
+                        "surface-container-highest": "#2d3449",
+                        "tertiary": "#bdc2ff",
+                        "on-secondary-fixed-variant": "#3c475a",
+                        "inverse-on-surface": "#283044",
+                        "surface-variant": "#2d3449",
+                        "primary-fixed": "#c4e7ff",
+                        "surface-bright": "#31394d",
+                        "secondary-fixed": "#d8e3fb",
+                        "tertiary-fixed": "#e0e0ff",
+                        "on-primary-fixed": "#001e2c",
+                        "error": "#ffb4ab",
+                        "primary-container": "#001a27",
+                        "inverse-primary": "#00668a",
+                        "outline": "#909097",
+                        "background": "#0b1326",
+                        "surface-tint": "#7bd0ff",
+                        "on-primary-container": "#008abb",
+                        "primary": "#7bd0ff",
+                        "secondary-fixed-dim": "#bcc7de",
+                        "on-primary": "#00354a",
+                        "on-tertiary-fixed-variant": "#2f3aa3",
+                        "on-background": "#dae2fd",
+                        "on-error": "#690005"
+                    },
+                    fontFamily: {
+                        "headline": ["Manrope"],
+                        "body": ["Manrope"],
+                        "label": ["Manrope"]
+                    },
+                    borderRadius: { "DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px" },
+                },
+            },
+        }
+    </script>
+<style>
+        body {
+            background-color: #0b1326;
+            color: #dae2fd;
+            font-family: 'Manrope', sans-serif;
+            -webkit-font-smoothing: antialiased;
+        }
+        .glass-header {
+            background: rgba(11, 19, 38, 0.8);
+            backdrop-filter: blur(24px);
+        }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .primary-gradient-btn {
+            background: linear-gradient(135deg, #7bd0ff 0%, #008abb 100%);
+        }
+        input:focus {
+            box-shadow: 0 0 8px 0 rgba(123, 208, 255, 0.3);
+        }
+        ::-webkit-scrollbar { width: 4px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #2d3449; border-radius: 10px; }
+        ::-webkit-calendar-picker-indicator {
+            filter: invert(0.8) sepia(100%) saturate(200%) hue-rotate(180deg);
+        }
+    </style>
+</head>
+<body class="min-h-screen pb-12">
+<!-- TopAppBar -->
+<header class="fixed top-0 w-full z-50 glass-header flex items-center justify-between px-6 h-20 shadow-[0_20px_50px_rgba(11,19,38,0.3)]">
+<div class="flex items-center gap-4">
+<button class="active:scale-95 transition-transform text-[#7bd0ff]">
+<span class="material-symbols-outlined text-2xl">arrow_back</span>
+</button>
+<h1 class="text-xl font-bold text-slate-100 tracking-tight font-['Manrope']">Edit Profile</h1>
+</div>
+<button class="text-[#7bd0ff] font-bold tracking-tight active:scale-95 transition-transform hover:text-[#7bd0ff]/80">
+            Save
+        </button>
+</header>
+<main class="mt-24 px-6 max-w-2xl mx-auto space-y-12">
+<!-- Profile Photo Section -->
+<section class="flex flex-col items-center">
+<div class="relative group">
+<div class="w-32 h-32 rounded-full ring-2 ring-[#7bd0ff]/20 p-1 overflow-hidden bg-surface-container-lowest">
+<img alt="User Profile" class="w-full h-full object-cover rounded-full" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAPTxAbLbNHPcv0hZbsBZjUZNSro1ycAyYPC810zvddSezbErKV84mCaGmLalkI6xAU54eng9HwRD-YLlyIKNNBcPGbPuYuD6PDiUQEo_lolB2IsD250hm1ieU2Byqrkfquy9Qe4Rc2ctIguI2uHhhkGhrvox0Gd2juzNc4kCR_N0JMhycrVxD4IJHFSFqNnd8ZF6LyYjLsmtj59xm_W87lnJsZCQadKuIGqa4gB5vj0Md8GEoriUacS9Zg7GCwC6LTnM_z6wjsZVvM"/>
+</div>
+<button class="absolute bottom-1 right-1 bg-primary text-on-primary w-10 h-10 rounded-full flex items-center justify-center shadow-lg active:scale-90 transition-transform">
+<span class="material-symbols-outlined text-xl">edit</span>
+</button>
+</div>
+</section>
+<!-- Identity Section -->
+<section class="space-y-6">
+<div class="flex items-center gap-4 mb-2">
+<span class="text-[10px] font-extrabold tracking-[0.2em] text-primary uppercase opacity-80">IDENTITY</span>
+<div class="h-[1px] flex-grow bg-outline-variant/20"></div>
+</div>
+<div class="grid grid-cols-1 gap-6">
+<div class="space-y-2">
+<label class="text-xs font-semibold text-secondary ml-1">Full Name</label>
+<input class="w-full bg-surface-container-lowest border-none text-on-surface rounded-md h-14 px-4 focus:bg-surface-container-high transition-all outline-none" type="text" value="Julian Thorne"/>
+</div>
+<div class="space-y-2">
+<label class="text-xs font-semibold text-secondary ml-1">Email Address</label>
+<input class="w-full bg-surface-container-lowest border-none text-on-surface rounded-md h-14 px-4 focus:bg-surface-container-high transition-all outline-none" type="email" value="julian.t@academic.edu"/>
+</div>
+</div>
+</section>
+<!-- Study Profile Section -->
+<section class="space-y-8">
+<div class="flex items-center gap-4 mb-2">
+<span class="text-[10px] font-extrabold tracking-[0.2em] text-primary uppercase opacity-80">STUDY PROFILE</span>
+<div class="h-[1px] flex-grow bg-outline-variant/20"></div>
+</div>
+<!-- Preferred Study Location -->
+<div class="space-y-4">
+<label class="text-xs font-semibold text-secondary ml-1">Preferred Study Location</label>
+<div class="flex gap-3">
+<button class="flex-1 py-3 rounded-xl text-xs font-bold bg-primary text-on-primary shadow-lg shadow-primary/20 transition-all">Home</button>
+<button class="flex-1 py-3 rounded-xl text-xs font-bold bg-surface-container-lowest text-secondary hover:bg-surface-container-low transition-all">School</button>
+<button class="flex-1 py-3 rounded-xl text-xs font-bold bg-surface-container-lowest text-secondary hover:bg-surface-container-low transition-all">Cafe</button>
+</div>
+</div>
+<!-- Weekly Routine (Flexible Per-Day Scheduling) -->
+<div class="space-y-4">
+<label class="text-xs font-semibold text-secondary ml-1">Weekly Routine</label>
+<!-- Day Multi-select (Sticky selection) -->
+<div class="flex justify-between gap-2 overflow-x-auto pb-2 mb-2">
+<button class="w-10 h-10 flex-shrink-0 flex items-center justify-center rounded-full font-bold transition-all bg-primary text-on-primary shadow-lg shadow-primary/20">M</button>
+<button class="w-10 h-10 flex-shrink-0 flex items-center justify-center rounded-full font-bold transition-all bg-primary text-on-primary shadow-lg shadow-primary/20">T</button>
+<button class="w-10 h-10 flex-shrink-0 flex items-center justify-center rounded-full font-bold transition-all bg-primary text-on-primary shadow-lg shadow-primary/20">W</button>
+<button class="w-10 h-10 flex-shrink-0 flex items-center justify-center rounded-full font-bold transition-all bg-primary text-on-primary shadow-lg shadow-primary/20">T</button>
+<button class="w-10 h-10 flex-shrink-0 flex items-center justify-center rounded-full font-bold transition-all bg-surface-container-lowest text-secondary hover:bg-surface-container-low">F</button>
+<button class="w-10 h-10 flex-shrink-0 flex items-center justify-center rounded-full font-bold transition-all bg-surface-container-lowest text-secondary hover:bg-surface-container-low">S</button>
+<button class="w-10 h-10 flex-shrink-0 flex items-center justify-center rounded-full font-bold transition-all bg-surface-container-lowest text-secondary hover:bg-surface-container-low">S</button>
+</div>
+<!-- Schedule List -->
+<div class="space-y-3">
+<!-- Monday: Custom Times (Expanded) -->
+<div class="bg-surface-container-low rounded-2xl border border-outline/10 overflow-hidden transition-all">
+<div class="p-4 flex items-center justify-between">
+<div class="flex items-center gap-3">
+<div class="w-9 h-9 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold text-sm">M</div>
+<div>
+<span class="block font-bold text-on-surface text-sm">Monday</span>
+<span class="text-[11px] text-primary font-medium">06:00 PM – 10:00 PM</span>
+</div>
+</div>
+<button class="flex items-center gap-1 text-[10px] font-bold text-secondary uppercase tracking-wider hover:text-primary transition-colors">
+                                Edit <span class="material-symbols-outlined text-base">expand_less</span>
+</button>
+</div>
+<div class="px-4 pb-5 grid grid-cols-2 gap-4">
+<div class="space-y-1.5">
+<label class="text-[10px] font-bold text-secondary uppercase tracking-widest">Start Time</label>
+<input class="w-full bg-surface-container-lowest border border-outline/10 rounded-lg p-2.5 text-sm font-bold text-on-surface focus:ring-1 focus:ring-primary/50 outline-none transition-all" type="time" value="18:00"/>
+</div>
+<div class="space-y-1.5">
+<label class="text-[10px] font-bold text-secondary uppercase tracking-widest">End Time</label>
+<input class="w-full bg-surface-container-lowest border border-outline/10 rounded-lg p-2.5 text-sm font-bold text-on-surface focus:ring-1 focus:ring-primary/50 outline-none transition-all" type="time" value="22:00"/>
+</div>
+</div>
+</div>
+<!-- Tuesday: Flexible -->
+<div class="bg-surface-container-low rounded-2xl border border-outline/10 overflow-hidden transition-all">
+<div class="p-4 flex items-center justify-between">
+<div class="flex items-center gap-3">
+<div class="w-9 h-9 rounded-full bg-surface-container-high flex items-center justify-center text-on-surface-variant font-bold text-sm">T</div>
+<div>
+<span class="block font-bold text-on-surface text-sm">Tuesday</span>
+<span class="text-[11px] text-on-surface-variant font-medium">Anytime / Flexible</span>
+</div>
+</div>
+<button class="flex items-center gap-1 text-[10px] font-bold text-primary uppercase tracking-wider hover:brightness-110 transition-colors">
+                                Add Times <span class="material-symbols-outlined text-base">add</span>
+</button>
+</div>
+</div>
+<!-- Wednesday: Custom Times (Collapsed) -->
+<div class="bg-surface-container-low rounded-2xl border border-outline/10 overflow-hidden transition-all">
+<div class="p-4 flex items-center justify-between">
+<div class="flex items-center gap-3">
+<div class="w-9 h-9 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold text-sm">W</div>
+<div>
+<span class="block font-bold text-on-surface text-sm">Wednesday</span>
+<span class="text-[11px] text-primary font-medium">08:00 AM – 12:00 PM</span>
+</div>
+</div>
+<button class="flex items-center gap-1 text-[10px] font-bold text-secondary uppercase tracking-wider hover:text-primary transition-colors">
+                                Edit <span class="material-symbols-outlined text-base">expand_more</span>
+</button>
+</div>
+</div>
+</div>
+</div>
+<!-- Study Success Criteria -->
+<div class="space-y-4">
+<label class="text-xs font-semibold text-secondary ml-1">Study Success Criteria</label>
+<div class="flex flex-wrap gap-2">
+<button class="px-4 py-2 rounded-full text-xs font-bold bg-primary text-on-primary shadow-lg shadow-primary/20 transition-all">Task Completion</button>
+<button class="px-4 py-2 rounded-full text-xs font-bold bg-surface-container-lowest text-secondary hover:bg-surface-container-low transition-all">2+ Hours Session</button>
+<button class="px-4 py-2 rounded-full text-xs font-bold bg-surface-container-lowest text-secondary hover:bg-surface-container-low transition-all">No Distractions</button>
+</div>
+</div>
+<!-- Peak Windows -->
+<div class="grid grid-cols-2 gap-4">
+<div class="p-5 rounded-xl bg-surface-container-low space-y-3">
+<div class="flex items-center gap-2 text-primary">
+<span class="material-symbols-outlined text-lg">wb_sunny</span>
+<span class="text-[10px] font-bold tracking-wider">MORNING PEAK</span>
+</div>
+<div class="text-lg font-bold text-on-surface">06:00 - 09:30</div>
+</div>
+<div class="p-5 rounded-xl bg-surface-container-high space-y-3 ring-1 ring-primary/20">
+<div class="flex items-center gap-2 text-primary">
+<span class="material-symbols-outlined text-lg">dark_mode</span>
+<span class="text-[10px] font-bold tracking-wider">NIGHT OWL</span>
+</div>
+<div class="text-lg font-bold text-on-surface">22:00 - 01:00</div>
+</div>
+</div>
+</section>
+<!-- Footer Action -->
+<section class="pt-8 border-t border-outline-variant/10">
+<button class="w-full py-4 rounded-xl text-error font-bold text-sm tracking-wide hover:bg-error/5 transition-colors active:scale-[0.98]">
+                Deactivate Study Account
+            </button>
+</section>
+</main>
+</body></html>

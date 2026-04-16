@@ -1,23 +1,30 @@
 package com.cue.data.local.entity
+
 import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.PrimaryKey
+import com.cue.domain.model.EndType
+import com.cue.domain.model.SessionStatus
+import com.cue.domain.model.StudySession
 
+/**
+ * Entity class representing a study session in the database.
+ * @param id The unique identifier of the study session.
+ * @param startTime The start time of the study session.
+ * @param endTime The end time of the study session.
+ * @param status The status of the study session (ACTIVE or ENDED).
+ * @param endType The end type of the study session (MANUAL or AUTO).
+ * @param createdAt The timestamp when the study session was created.
+ * @constructor Creates a new StudySessionEntity object.
+ */
 @Entity(tableName = "StudySession")
 data class StudySessionEntity(
     @PrimaryKey(autoGenerate = true)
     val id: Long = 0,
 
-    @ColumnInfo(name = "start_time")
     val startTime: Long,
-
-    @ColumnInfo(name = "end_time")
     val endTime: Long?,
-
-    @ColumnInfo(name = "end_type")
-    val endType: String?, // Manual or SEMI auto
-
-    @ColumnInfo(name = "created_at")
-    val createdAt : Long = System.currentTimeMillis(),
-          
+    val status: String, // ACTIVE, ENDED
+    val endType: String?, // MANUAL, AUTO
+    val createdAt: Long = System.currentTimeMillis(),
 )

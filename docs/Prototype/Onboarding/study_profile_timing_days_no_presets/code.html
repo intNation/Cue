@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@200;300;400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              "on-tertiary-fixed": "#000767",
+              "on-primary": "#00354a",
+              "primary-fixed-dim": "#7bd0ff",
+              "surface-container-highest": "#2d3449",
+              "on-tertiary-fixed-variant": "#2f3aa3",
+              "primary-container": "#001a27",
+              "on-primary-fixed": "#001e2c",
+              "on-background": "#dae2fd",
+              "surface": "#0b1326",
+              "surface-container-high": "#222a3d",
+              "on-surface": "#dae2fd",
+              "on-tertiary-container": "#6c77e1",
+              "error": "#ffb4ab",
+              "outline-variant": "#45464d",
+              "on-primary-container": "#008abb",
+              "inverse-on-surface": "#283044",
+              "secondary": "#bcc7de",
+              "surface-container": "#171f33",
+              "inverse-primary": "#00668a",
+              "inverse-surface": "#dae2fd",
+              "surface-bright": "#31394d",
+              "on-tertiary": "#131e8c",
+              "on-error": "#690005",
+              "surface-dim": "#0b1326",
+              "on-secondary-fixed-variant": "#3c475a",
+              "on-primary-fixed-variant": "#004c69",
+              "background": "#0b1326",
+              "secondary-container": "#3e495d",
+              "surface-container-low": "#131b2e",
+              "on-surface-variant": "#c6c6cd",
+              "surface-variant": "#2d3449",
+              "surface-tint": "#7bd0ff",
+              "secondary-fixed": "#d8e3fb",
+              "on-error-container": "#ffdad6",
+              "secondary-fixed-dim": "#bcc7de",
+              "tertiary-fixed-dim": "#bdc2ff",
+              "outline": "#909097",
+              "primary-fixed": "#c4e7ff",
+              "primary": "#7bd0ff",
+              "tertiary-fixed": "#e0e0ff",
+              "tertiary-container": "#00055c",
+              "error-container": "#93000a",
+              "on-secondary-container": "#aeb9d0",
+              "on-secondary": "#263143",
+              "surface-container-lowest": "#060e20",
+              "tertiary": "#bdc2ff",
+              "on-secondary-fixed": "#111c2d"
+            },
+            fontFamily: {
+              "headline": ["Manrope"],
+              "body": ["Manrope"],
+              "label": ["Manrope"]
+            },
+            borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px"},
+          },
+        },
+      }
+    </script>
+<style>
+      .material-symbols-outlined {
+        font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+      }
+      ::-webkit-calendar-picker-indicator {
+        filter: invert(0.8) sepia(100%) saturate(200%) hue-rotate(180deg);
+      }
+      .scrollbar-hide::-webkit-scrollbar {
+          display: none;
+      }
+      .scrollbar-hide {
+          -ms-overflow-style: none;
+          scrollbar-width: none;
+      }
+    </style>
+</head>
+<body class="bg-[#0b1326] text-on-background font-body selection:bg-primary selection:text-on-primary min-h-screen">
+<header class="fixed top-0 w-full z-50 flex justify-between items-center px-6 py-4 bg-[#0b1326]/80 backdrop-blur-xl shadow-[0_4px_30px_rgba(0,0,0,0.1)]">
+<div class="flex items-center gap-4">
+<button class="flex items-center justify-center p-2 rounded-full active:scale-95 duration-200 text-[#7bd0ff] transition-colors">
+<span class="material-symbols-outlined" data-icon="arrow_back">arrow_back</span>
+</button>
+<h1 class="font-['Manrope'] tracking-tight font-bold text-sm uppercase text-[#7bd0ff]">Step 2 of 3</h1>
+</div>
+<button class="font-['Manrope'] tracking-tight font-bold text-sm uppercase text-[#7bd0ff] hover:text-[#7bd0ff] transition-colors active:scale-95 duration-200">
+            Skip
+        </button>
+</header>
+<main class="min-h-screen pt-24 pb-44 px-6 flex flex-col max-w-2xl mx-auto">
+<!-- Step Indicator / Progress Bar -->
+<div class="w-full flex gap-2 mb-12">
+<div class="h-1.5 flex-1 bg-primary rounded-full shadow-[0_0_8px_rgba(123,208,255,0.4)]"></div>
+<div class="h-1.5 flex-1 bg-primary rounded-full shadow-[0_0_8px_rgba(123,208,255,0.4)]"></div>
+<div class="h-1.5 flex-1 bg-surface-container-highest rounded-full"></div>
+</div>
+<!-- Headline -->
+<div class="mb-10">
+<h2 class="text-4xl md:text-5xl font-extrabold font-headline leading-tight tracking-tighter max-w-md">
+                When do you <span class="text-primary italic">usually</span> study?
+            </h2>
+<p class="mt-4 text-on-surface-variant font-medium max-w-sm">
+                Set custom hours for specific days, or keep it flexible. We'll adjust focus recommendations accordingly.
+            </p>
+</div>
+<!-- Study Days Multi-select -->
+<div class="mb-8">
+<h3 class="text-sm font-bold text-secondary uppercase tracking-widest mb-4">Study Days</h3>
+<div class="flex justify-between gap-2 overflow-x-auto pb-2 scrollbar-hide">
+<button class="w-11 h-11 flex-shrink-0 flex items-center justify-center rounded-xl font-bold transition-all duration-200 bg-primary text-on-primary active:scale-95 shadow-[0_0_15px_rgba(123,208,255,0.2)]">M</button>
+<button class="w-11 h-11 flex-shrink-0 flex items-center justify-center rounded-xl font-bold transition-all duration-200 bg-primary text-on-primary active:scale-95 shadow-[0_0_15px_rgba(123,208,255,0.2)]">T</button>
+<button class="w-11 h-11 flex-shrink-0 flex items-center justify-center rounded-xl font-bold transition-all duration-200 bg-primary text-on-primary active:scale-95 shadow-[0_0_15px_rgba(123,208,255,0.2)]">W</button>
+<button class="w-11 h-11 flex-shrink-0 flex items-center justify-center rounded-xl font-bold transition-all duration-200 bg-primary text-on-primary active:scale-95 shadow-[0_0_15px_rgba(123,208,255,0.2)]">T</button>
+<button class="w-11 h-11 flex-shrink-0 flex items-center justify-center rounded-xl font-bold transition-all duration-200 bg-primary text-on-primary active:scale-95 shadow-[0_0_15px_rgba(123,208,255,0.2)]">F</button>
+<button class="w-11 h-11 flex-shrink-0 flex items-center justify-center rounded-xl font-bold transition-all duration-200 bg-surface-container-low border border-outline/20 text-on-surface hover:bg-surface-container-high active:scale-95">S</button>
+<button class="w-11 h-11 flex-shrink-0 flex items-center justify-center rounded-xl font-bold transition-all duration-200 bg-surface-container-low border border-outline/20 text-on-surface hover:bg-surface-container-high active:scale-95">S</button>
+</div>
+</div>
+<!-- Dynamic Day Schedule List -->
+<div class="space-y-4">
+<h3 class="text-sm font-bold text-secondary uppercase tracking-widest mb-2">Weekly Schedule</h3>
+<!-- Monday: Custom Times -->
+<div class="group bg-surface-container-low/50 rounded-2xl border border-outline/10 overflow-hidden transition-all duration-300 hover:border-primary/30">
+<div class="p-5 flex items-center justify-between">
+<div class="flex items-center gap-4">
+<div class="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold">M</div>
+<div>
+<span class="block font-bold text-on-surface">Monday</span>
+<span class="text-xs text-primary font-medium">06:00 PM – 10:00 PM</span>
+</div>
+</div>
+<button class="flex items-center gap-1 text-xs font-bold text-secondary uppercase tracking-wider hover:text-primary transition-colors">
+                        Edit <span class="material-symbols-outlined text-lg" data-icon="expand_less">expand_less</span>
+</button>
+</div>
+<div class="px-5 pb-6 grid grid-cols-2 gap-4">
+<div class="space-y-2">
+<label class="text-[10px] font-bold text-secondary uppercase tracking-widest">Start Time</label>
+<div class="relative">
+<input class="w-full bg-surface-container-lowest border border-outline/10 rounded-lg p-3 text-lg font-bold font-headline text-on-surface focus:ring-1 focus:ring-primary/50 focus:border-primary/50 transition-all outline-none" type="time" value="18:00"/>
+</div>
+</div>
+<div class="space-y-2">
+<label class="text-[10px] font-bold text-secondary uppercase tracking-widest">End Time</label>
+<div class="relative">
+<input class="w-full bg-surface-container-lowest border border-outline/10 rounded-lg p-3 text-lg font-bold font-headline text-on-surface focus:ring-1 focus:ring-primary/50 focus:border-primary/50 transition-all outline-none" type="time" value="22:00"/>
+</div>
+</div>
+</div>
+</div>
+<!-- Tuesday: Flexible (Default/Unexpanded) -->
+<div class="group bg-surface-container-low/50 rounded-2xl border border-outline/10 overflow-hidden transition-all duration-300 hover:border-primary/30">
+<div class="p-5 flex items-center justify-between">
+<div class="flex items-center gap-4">
+<div class="w-10 h-10 rounded-full bg-surface-container-high flex items-center justify-center text-on-surface-variant font-bold">T</div>
+<div>
+<span class="block font-bold text-on-surface">Tuesday</span>
+<span class="text-xs text-on-surface-variant font-medium">Anytime / Flexible</span>
+</div>
+</div>
+<button class="flex items-center gap-1 text-xs font-bold text-primary uppercase tracking-wider hover:brightness-110 transition-colors">
+                        Add Times <span class="material-symbols-outlined text-lg" data-icon="add">add</span>
+</button>
+</div>
+</div>
+<!-- Wednesday: Custom Times (Collapsed) -->
+<div class="group bg-surface-container-low/50 rounded-2xl border border-outline/10 overflow-hidden transition-all duration-300 hover:border-primary/30">
+<div class="p-5 flex items-center justify-between">
+<div class="flex items-center gap-4">
+<div class="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold">W</div>
+<div>
+<span class="block font-bold text-on-surface">Wednesday</span>
+<span class="text-xs text-primary font-medium">08:00 AM – 12:00 PM</span>
+</div>
+</div>
+<button class="flex items-center gap-1 text-xs font-bold text-secondary uppercase tracking-wider hover:text-primary transition-colors">
+                        Edit <span class="material-symbols-outlined text-lg" data-icon="expand_more">expand_more</span>
+</button>
+</div>
+</div>
+<!-- Thursday & Friday: Any others selected would go here... -->
+<div class="pt-4 flex items-center justify-center opacity-40">
+<div class="h-px flex-1 bg-gradient-to-r from-transparent to-outline/20"></div>
+<span class="px-4 text-[10px] font-bold uppercase tracking-[0.2em] text-on-surface-variant">Selected Days only</span>
+<div class="h-px flex-1 bg-gradient-to-l from-transparent to-outline/20"></div>
+</div>
+</div>
+<!-- Presets -->
+</main>
+<!-- Fixed Bottom Action Bar -->
+<footer class="fixed bottom-0 w-full p-6 bg-gradient-to-t from-[#0b1326] via-[#0b1326]/95 to-transparent flex flex-col items-center z-50">
+<button class="w-full max-w-md h-16 rounded-full bg-gradient-to-br from-primary to-on-primary-container text-on-primary-fixed font-bold text-lg tracking-tight hover:shadow-[0_0_40px_rgba(123,208,255,0.3)] transition-all active:scale-[0.98] duration-200">
+            Continue
+        </button>
+<p class="mt-4 text-[10px] text-on-surface-variant font-bold uppercase tracking-widest">You can adjust these hours later in Settings.</p>
+</footer>
+<!-- Abstract Atmospheric Background Elements -->
+<div class="fixed top-1/4 -left-20 w-80 h-80 bg-primary/5 blur-[120px] rounded-full -z-10 pointer-events-none"></div>
+<div class="fixed bottom-1/4 -right-20 w-64 h-64 bg-on-tertiary-container/5 blur-[100px] rounded-full -z-10 pointer-events-none"></div>
+</body></html>

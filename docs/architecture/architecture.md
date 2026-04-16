@@ -45,6 +45,7 @@ Project Cue follows a specialized **Clean Architecture** approach. To effectivel
 - `phoneUsage`: String (Dummy: "High", "Medium", "Low")
 - `connectivity`: String (Dummy: "WiFi", "Cellular", "None")
 - `weather`: String (Dummy: "Sunny", "Rainy", "Cloudy")
+- `sleep`: Int? (Dummy: "8". "6" , "4") 
 - `confidenceScore`: Float (0.0 – 1.0)
 
 ### 3.3 DailyCheckIn

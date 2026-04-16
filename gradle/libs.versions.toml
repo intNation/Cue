@@ -7,14 +7,24 @@ espressoCore = "3.5.1"
 lifecycleRuntimeKtx = "2.6.1"
 activityCompose = "1.8.0"
 kotlin = "2.0.21"
+ksp = "2.0.21-1.0.25"
 composeBom = "2024.09.00"
 roomCommonJvm = "2.8.4"
 room3Runtime = "3.0.0-alpha01"
 roomKtx = "2.8.4"
 roomRuntime = "2.8.4"
 roomCompiler = "2.8.4"
+workRuntimeKtx = "2.9.0"
+mockk = "1.13.8"
+kotlinxCoroutinesTest = "1.7.3"
+turbine = "1.0.0"
 
 [libraries]
+test-mockk = { group = "io.mockk", name = "mockk", version.ref = "mockk" }
+test-coroutines = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-test", version.ref = "kotlinxCoroutinesTest" }
+test-turbine = { group = "app.cash.turbine", name = "turbine", version.ref = "turbine" }
+androidx-work-runtime-ktx = { group = "androidx.work", name = "work-runtime-ktx", version.ref = "workRuntimeKtx" }
+androidx-compose-material-icons-extended = { module = "androidx.compose.material:material-icons-extended" }
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
 androidx-room-ktx = { module = "androidx.room:room-ktx", version.ref = "roomKtx" }
 androidx-room-runtime = { module = "androidx.room:room-runtime", version.ref = "roomRuntime" }
@@ -35,8 +45,10 @@ androidx-room-common-jvm = { group = "androidx.room", name = "room-common-jvm", 
 androidx-room3-runtime = { group = "androidx.room3", name = "room3-runtime", version.ref = "room3Runtime" }
 androidx-room-compiler = { module = "androidx.room:room-compiler", version.ref = "roomCompiler" }
 
+
+
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
 kotlin-compose = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
-kotlin-kapt = { id = "org.jetbrains.kotlin.kapt", version.ref = "kotlin" }
+ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }
 

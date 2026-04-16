@@ -1,8 +1,11 @@
 import org.gradle.api.JavaVersion
+import org.gradle.kotlin.dsl.implementation
+import org.jetbrains.kotlin.gradle.plugin.KotlinSourceSetTree.Companion.test
 
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.compose)
+    alias(libs.plugins.ksp)
 }
 
 android {
@@ -45,6 +48,8 @@ android {
 dependencies {
     implementation(libs.androidx.room.runtime)
     implementation(libs.androidx.room.ktx)
+
+    ksp(libs.androidx.room.compiler)
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.activity.compose)
@@ -54,8 +59,13 @@ dependencies {
     implementation(libs.androidx.compose.ui.tooling.preview)
     implementation(libs.androidx.compose.material3)
     implementation(libs.androidx.room.common.jvm)
+    implementation("androidx.compose.material:material-icons-extended")
+    implementation(libs.androidx.work.runtime.ktx)
 
     testImplementation(libs.junit)
+    testImplementation(libs.test.mockk)
+    testImplementation(libs.test.coroutines)
+    testImplementation(libs.test.turbine)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
     androidTestImplementation(platform(libs.androidx.compose.bom))

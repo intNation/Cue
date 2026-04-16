@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@200;300;400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          colors: {
+            "on-secondary-container": "#aeb9d0",
+            "on-secondary": "#263143",
+            "surface-container-lowest": "#060e20",
+            "tertiary": "#bdc2ff",
+            "tertiary-fixed": "#e0e0ff",
+            "tertiary-container": "#00055c",
+            "error-container": "#93000a",
+            "on-secondary-fixed": "#111c2d",
+            "surface-variant": "#2d3449",
+            "surface-tint": "#7bd0ff",
+            "secondary-fixed": "#d8e3fb",
+            "on-error-container": "#ffdad6",
+            "on-primary-fixed-variant": "#004c69",
+            "background": "#0b1326",
+            "secondary-container": "#3e495d",
+            "surface-container-low": "#131b2e",
+            "on-surface-variant": "#c6c6cd",
+            "outline": "#909097",
+            "primary-fixed": "#c4e7ff",
+            "primary": "#7bd0ff",
+            "secondary-fixed-dim": "#bcc7de",
+            "tertiary-fixed-dim": "#bdc2ff",
+            "inverse-on-surface": "#283044",
+            "secondary": "#bcc7de",
+            "outline-variant": "#45464d",
+            "on-primary-container": "#008abb",
+            "on-error": "#690005",
+            "surface-dim": "#0b1326",
+            "on-secondary-fixed-variant": "#3c475a",
+            "surface-container": "#171f33",
+            "inverse-primary": "#00668a",
+            "inverse-surface": "#dae2fd",
+            "surface-bright": "#31394d",
+            "on-tertiary": "#131e8c",
+            "on-primary": "#00354a",
+            "primary-fixed-dim": "#7bd0ff",
+            "surface-container-highest": "#2d3449",
+            "on-tertiary-fixed-variant": "#2f3aa3",
+            "on-tertiary-fixed": "#000767",
+            "on-tertiary-container": "#6c77e1",
+            "error": "#ffb4ab",
+            "primary-container": "#001a27",
+            "on-primary-fixed": "#001e2c",
+            "on-background": "#dae2fd",
+            "surface": "#0b1326",
+            "surface-container-high": "#222a3d",
+            "on-surface": "#dae2fd"
+          },
+          fontFamily: {
+            "headline": ["Manrope"],
+            "body": ["Manrope"],
+            "label": ["Manrope"]
+          },
+          borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px"},
+        },
+      },
+    }
+  </script>
+<style>
+    .material-symbols-outlined {
+      font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+    }
+    .tonal-transition {
+      background: linear-gradient(180deg, #0b1326 0%, #131b2e 100%);
+    }
+    .glass-card {
+      background: rgba(45, 52, 73, 0.4);
+      backdrop-filter: blur(20px);
+    }
+    .text-gradient {
+      background: linear-gradient(135deg, #7bd0ff 0%, #008abb 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    .primary-gradient {
+      background: linear-gradient(135deg, #7bd0ff 0%, #008abb 100%);
+    }
+    body {
+      background-color: #0b1326;
+      color: #dae2fd;
+      font-family: 'Manrope', sans-serif;
+    }
+  </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+</head>
+<body class="min-h-screen pb-32">
+<!-- Shared TopAppBar -->
+<header class="w-full top-0 sticky z-50 no-border tonal-transition bg-[#0b1326] flex items-center justify-between px-6 py-4 w-full">
+<div class="flex items-center gap-4">
+<span class="material-symbols-outlined text-[#7bd0ff]" data-icon="menu">menu</span>
+</div>
+<h1 class="font-['Manrope'] font-bold tracking-tighter text-2xl text-[#7bd0ff] uppercase">CUE</h1>
+<div class="w-10 h-10 rounded-full overflow-hidden bg-surface-container-highest border border-outline-variant/20 hover:opacity-80 transition-opacity cursor-pointer">
+<img alt="User avatar" class="w-full h-full object-cover" data-alt="Close up of a professional male user avatar" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDS_K_fsCXGvyWhDM6_VsozttihMiEylHKvYZKMq_8InyF5OVCga8_EgUUo0wlYfa7XXnhYfOx4Veqcgtv1tmb1vTo6Y1Tl9DfnkQ_0hdffqTVhvL-PzCvb32FZBgAmDw-hDvWX24hsW4IEyuz4iB9BTQHxPdRFFwmRlwzu0nZ5vIlx9li8yVJnZgoYR2Uqde9k70Nf_tArv27cKYbhLokT2lj92OJIMjfaz_hjyv8P7fqhSD74lvyrTX4AguZgZYAUgy928WHKo-vX"/>
+</div>
+</header>
+<main class="px-6 mt-8 max-w-2xl mx-auto space-y-12">
+<!-- Hero Profile Section -->
+<section class="flex flex-col items-start space-y-4">
+<div class="relative group">
+<div class="absolute -inset-1 primary-gradient rounded-full blur opacity-25 group-hover:opacity-40 transition duration-1000"></div>
+<div class="relative w-24 h-24 rounded-full overflow-hidden ring-4 ring-surface-container-low">
+<img alt="Alex Rivers" class="w-full h-full object-cover" data-alt="User profile photo of Alex Rivers" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCoiLODsFL2wGEFKR0GBdTd-eHVAVBKE_rl4JpMD30QD0BfYR4rcOK_ALnaPluDJVIR7YQIbWO269RFT2FP6LJL5yTSfqfLukxXAkaJz-dkeMbeSbn3n_rHuJx7_Nm1AkE15KSc3B7wWBN_DOWiKcjhZyk2_ZPnRLdZTb6wC4cTBrpa-yjrq_-yn2oCQ-pMPTM_mL5X6JPUuPMcjJt4Nv7CE6cOzzlut2LmS2JD3e7cIj9nYRAG30FczhdfKnGpd8bxFBLZbz1Z3-eI"/>
+</div>
+<button class="absolute bottom-0 right-0 w-8 h-8 bg-primary rounded-full flex items-center justify-center border-2 border-surface shadow-lg z-20 hover:scale-110 transition-transform active:scale-90">
+<span class="material-symbols-outlined text-on-primary text-sm font-bold" data-icon="edit">edit</span>
+</button></div>
+<div>
+<h2 class="text-4xl font-extrabold tracking-tight text-on-surface">Alex Rivers</h2>
+<p class="text-secondary font-medium tracking-wide body-md">a.rivers@university.edu</p>
+</div>
+</section>
+<!-- Stats Section (Asymmetric Bento Grid) -->
+<section class="grid grid-cols-2 gap-4">
+<!-- Total Focus Time -->
+<div class="surface-container-low rounded-xl p-6 h-36 flex flex-col justify-between group hover:bg-surface-container-high transition-colors">
+<span class="material-symbols-outlined text-primary text-2xl" data-icon="timer">timer</span>
+<div>
+<p class="text-primary-fixed-dim text-2xl font-bold">124h</p>
+<p class="text-on-secondary-container text-[10px] font-bold uppercase tracking-widest">Total Focus</p>
+</div>
+</div>
+<!-- Avg. Session -->
+<div class="surface-container-low rounded-xl p-6 h-36 flex flex-col justify-between hover:bg-surface-container-high transition-colors">
+<span class="material-symbols-outlined text-tertiary text-2xl" data-icon="avg_time">avg_time</span>
+<div>
+<p class="text-on-surface text-2xl font-bold">52m</p>
+<p class="text-on-secondary-container text-[10px] font-bold uppercase tracking-widest">Avg. Session</p>
+</div>
+</div>
+<!-- Current Streak -->
+<div class="surface-container-low rounded-xl p-6 h-36 flex flex-col justify-between hover:bg-surface-container-high transition-colors border-l-2 border-primary/20">
+<span class="material-symbols-outlined text-primary text-2xl" data-icon="local_fire_department">local_fire_department</span>
+<div>
+<p class="text-on-surface text-2xl font-bold">5 days</p>
+<p class="text-on-secondary-container text-[10px] font-bold uppercase tracking-widest">Current Streak</p>
+</div>
+</div>
+<!-- Monthly Target -->
+<div class="surface-container-low rounded-xl p-6 h-36 flex flex-col justify-between hover:bg-surface-container-high transition-colors">
+<span class="material-symbols-outlined text-tertiary text-2xl" data-icon="track_changes">track_changes</span>
+<div>
+<p class="text-on-surface text-2xl font-bold">82%</p>
+<p class="text-on-secondary-container text-[10px] font-bold uppercase tracking-widest">Monthly Target</p>
+</div>
+</div>
+</section>
+<!-- Study Profile Section -->
+<!-- Recent Activity -->
+<section class="space-y-6">
+<div class="flex justify-between items-center">
+<h3 class="text-xl font-bold tracking-tight text-on-surface flex items-center gap-2">
+<span class="w-1.5 h-6 bg-tertiary rounded-full"></span>
+          Recent Sessions
+        </h3>
+<button class="text-primary text-xs font-bold uppercase tracking-widest hover:opacity-70 transition-opacity">View All</button>
+</div>
+<div class="space-y-3">
+<!-- Activity Item 1 -->
+<div class="bg-surface-container rounded-xl p-4 flex items-center justify-between hover:translate-x-1 transition-transform">
+<div class="flex items-center gap-4">
+<div class="w-10 h-10 rounded-lg bg-surface-container-high flex items-center justify-center">
+<span class="material-symbols-outlined text-primary" data-icon="history_edu">history_edu</span>
+</div>
+<div>
+<p class="font-bold text-on-surface">Physics Research</p>
+<p class="text-xs text-on-secondary-container">Yesterday • 1h 20m</p>
+</div>
+</div>
+<div class="text-right">
+<p class="text-lg font-black text-primary">94</p>
+<p class="text-[10px] font-bold uppercase text-on-secondary-container">Score</p>
+</div>
+</div>
+<!-- Activity Item 2 -->
+<div class="bg-surface-container rounded-xl p-4 flex items-center justify-between hover:translate-x-1 transition-transform">
+<div class="flex items-center gap-4">
+<div class="w-10 h-10 rounded-lg bg-surface-container-high flex items-center justify-center">
+<span class="material-symbols-outlined text-tertiary" data-icon="psychology">psychology</span>
+</div>
+<div>
+<p class="font-bold text-on-surface">Logic &amp; Ethics</p>
+<p class="text-xs text-on-secondary-container">2 days ago • 45m</p>
+</div>
+</div>
+<div class="text-right">
+<p class="text-lg font-black text-tertiary">81</p>
+<p class="text-[10px] font-bold uppercase text-on-secondary-container">Score</p>
+</div>
+</div>
+<!-- Activity Item 3 -->
+<div class="bg-surface-container rounded-xl p-4 flex items-center justify-between hover:translate-x-1 transition-transform">
+<div class="flex items-center gap-4">
+<div class="w-10 h-10 rounded-lg bg-surface-container-high flex items-center justify-center">
+<span class="material-symbols-outlined text-secondary" data-icon="terminal">terminal</span>
+</div>
+<div>
+<p class="font-bold text-on-surface">Data Structures</p>
+<p class="text-xs text-on-secondary-container">3 days ago • 2h 05m</p>
+</div>
+</div>
+<div class="text-right">
+<p class="text-lg font-black text-secondary">88</p>
+<p class="text-[10px] font-bold uppercase text-on-secondary-container">Score</p>
+</div>
+</div>
+</div>
+</section>
+</main>
+<!-- Shared BottomNavBar -->
+<nav class="fixed bottom-8 w-full flex justify-center items-center z-50 px-4">
+<div class="w-[90%] max-w-md rounded-full border border-white/5 bg-slate-900/70 backdrop-blur-2xl shadow-[0_20px_50px_rgba(8,_112,_184,_0.15)] flex justify-around items-center h-16 px-4">
+<a class="flex flex-col items-center justify-center text-slate-400 hover:text-slate-200 hover:scale-110 transition-transform active:scale-90 duration-150" href="#">
+<span class="material-symbols-outlined" data-icon="timer">timer</span>
+<span class="font-manrope text-[10px] font-semibold uppercase tracking-widest mt-1">Focus</span>
+</a>
+<a class="flex flex-col items-center justify-center text-slate-400 hover:text-slate-200 hover:scale-110 transition-transform active:scale-90 duration-150" href="#">
+<span class="material-symbols-outlined" data-icon="query_stats">query_stats</span>
+<span class="font-manrope text-[10px] font-semibold uppercase tracking-widest mt-1">Insights</span>
+</a>
+<a class="flex flex-col items-center justify-center bg-gradient-to-br from-sky-400 to-blue-600 text-slate-950 rounded-full w-12 h-12 shadow-lg shadow-sky-500/20 active:scale-90 duration-150 transition-transform" href="#">
+<span class="material-symbols-outlined" data-icon="person" style="font-variation-settings: 'FILL' 1;">person</span>
+</a>
+<a class="flex flex-col items-center justify-center text-slate-400 hover:text-slate-200 hover:scale-110 transition-transform active:scale-90 duration-150" href="#">
+<span class="material-symbols-outlined" data-icon="settings">settings</span>
+<span class="font-manrope text-[10px] font-semibold uppercase tracking-widest mt-1">Settings</span>
+</a>
+</div>
+</nav>
+</body></html>
