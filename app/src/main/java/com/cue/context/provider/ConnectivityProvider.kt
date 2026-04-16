@@ -3,28 +3,41 @@ package com.cue.context.provider
 import android.content.Context
 import android.net.ConnectivityManager
 import android.net.NetworkCapabilities
+import com.cue.context.contracts.ConnectivityProvider as ConnectivitySignalProvider
+import com.cue.context.contracts.ConnectivitySignal
+import com.cue.context.contracts.ProviderResult
+import com.cue.context.contracts.UnavailableReason
 
 /**
  * Provider for collecting network connectivity signals.
  */
-class ConnectivityProvider(private val context: Context) {
+class ConnectivityProvider(private val context: Context) : ConnectivitySignalProvider {
 
     /**
      * Detects the current connectivity type.
-     * @return "WiFi", "Cellular", or "None"
+     * @return A ProviderResult indicating the current connectivity type.
      */
-    fun getConnectivityStatus(): String {
+    override fun getConnectivitySignal(): ProviderResult<ConnectivitySignal> {
+        // Get the system ConnectivityManager
         val connectivityManager = context.getSystemService(Context.CONNECTIVITY_SERVICE) as? ConnectivityManager
-            ?: return "None"
+            ?: return ProviderResult.Unavailable(UnavailableReason.TEMPORARY_ERROR)
 
-        val activeNetwork = connectivityManager.activeNetwork ?: return "None"
-        val capabilities = connectivityManager.getNetworkCapabilities(activeNetwork) ?: return "None"
+        // Get the active network and its capabilities
+        val activeNetwork = connectivityManager.activeNetwork
+            ?: return ProviderResult.Available(ConnectivitySignal.NONE)
+        // Check the network capabilities to determine the connectivity type
+        val capabilities = connectivityManager.getNetworkCapabilities(activeNetwork)
+            ?: return ProviderResult.Unavailable(UnavailableReason.DATA_NOT_AVAILABLE)
 
+        // Return the appropriate ConnectivitySignal based on the network capabilities
         return when {
-            capabilities.hasTransport(NetworkCapabilities.TRANSPORT_WIFI) -> "WiFi"
-            capabilities.hasTransport(NetworkCapabilities.TRANSPORT_CELLULAR) -> "Cellular"
-            capabilities.hasTransport(NetworkCapabilities.TRANSPORT_ETHERNET) -> "WiFi" // Treat Ethernet as WiFi
-            else -> "None"
+            capabilities.hasTransport(NetworkCapabilities.TRANSPORT_WIFI) ->
+                ProviderResult.Available(ConnectivitySignal.WIFI)
+            capabilities.hasTransport(NetworkCapabilities.TRANSPORT_CELLULAR) ->
+                ProviderResult.Available(ConnectivitySignal.CELLULAR)
+            capabilities.hasTransport(NetworkCapabilities.TRANSPORT_ETHERNET) ->
+                ProviderResult.Available(ConnectivitySignal.UNKNOWN)
+            else -> ProviderResult.Available(ConnectivitySignal.UNKNOWN)
         }
     }
 }

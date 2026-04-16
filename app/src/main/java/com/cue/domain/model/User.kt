@@ -7,6 +7,18 @@ enum class StudyLocation(val label: String) {
     OTHER("Other")
 }
 
+data class StudyPlace(
+    val id: Long,
+    val label: String,
+    val studyLocation: StudyLocation,
+    val latitude: Double,
+    val longitude: Double,
+    val radiusMeters: Int,
+    val isActive: Boolean = true
+
+)
+
+
 enum class SuccessMetric(val label: String, val description: String) {
     COMPLETING_TASK("Completing a task", "Focus on finishing your to-do list items one by one."),
     TIME_DURATION("Studying for 2+ hours", "Prioritize deep-work endurance and time management."),

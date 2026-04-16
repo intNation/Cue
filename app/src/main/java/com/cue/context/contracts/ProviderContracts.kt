@@ -43,9 +43,9 @@ enum class StudyLocationSignal{
 }
 
 /**
- * Enum representing the different types of wheather
+ * Enum representing the different types of whether
  */
-enum class WheatherSignal{
+enum class WhetherSignal{
     SUNNY,RAINY,CLOUDY,UNKNOWN
 }
 
@@ -101,22 +101,22 @@ interface StudyLocationProvider {
      suspend fun  getStudyLocationSignal(savedLocations: List<StudyLocation>): ProviderResult<StudyLocationSignal>
 
     /**
-     * Gets the current coarse location to be used for wheather
+     * Gets the current coarse location to be used for whether
      * @return The current coarse location
      */
-    suspend fun  getWheatherLocation(): ProviderResult<CoarseLocation>
+    suspend fun  getWhetherLocation(): ProviderResult<CoarseLocation>
 }
 
 
 /**
- * Interface for a wheather provider
+ * Interface for a whether provider
  */
-interface WheatherProvider {
+interface WhetherProvider {
     /**
-     * Gets the current wheather signal
-     * @return The current wheather signal
+     * Gets the current whether signal
+     * @return The current whether signal
      */
-    suspend fun getWheatherSignal(location: CoarseLocation): ProviderResult<WheatherSignal>
+    suspend fun getWhetherSignal(location: CoarseLocation): ProviderResult<WhetherSignal>
 }
 
 
