@@ -30,6 +30,7 @@ data class OnboardingUiState(
     val calendarEnabled: Boolean = false,
     val sleepEnabled: Boolean = false,
     val movementEnabled: Boolean = false,
+    val phoneUsageEnabled: Boolean = false,
     val isAnchoringPlace: Boolean = false,
     val anchorError: String? = null,
     val isSaving: Boolean = false,
@@ -118,6 +119,10 @@ class OnboardingViewModel(
         _uiState.update { it.copy(movementEnabled = enabled) }
     }
 
+    fun togglePhoneUsagePermission(enabled: Boolean) {
+        _uiState.update { it.copy(phoneUsageEnabled = enabled) }
+    }
+
     fun nextStep() {
         _uiState.update { it.copy(currentStep = it.currentStep + 1) }
     }
@@ -141,7 +146,8 @@ class OnboardingViewModel(
                 locationEnabled = state.locationEnabled,
                 calendarEnabled = state.calendarEnabled,
                 sleepEnabled = state.sleepEnabled,
-                movementEnabled = state.movementEnabled
+                movementEnabled = state.movementEnabled,
+                phoneUsageEnabled = state.phoneUsageEnabled
             )
             
             // Start background context polling
