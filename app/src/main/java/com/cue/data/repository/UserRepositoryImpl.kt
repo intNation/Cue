@@ -24,16 +24,22 @@ class UserRepositoryImpl(
         //either all operations of inserting a user profile are successful or none are
         return db.withTransaction {
             val userId = userDao.insertUser(user.toEntity())
-            
-            // To maintain normalization and avoid duplicates, 
-            // we could clear existing locations/schedules here if updating,
-            // but for onboarding (Step 1-3), we are typically inserting fresh or replacing.
-            
-            // Prepare entities with the returned userId
+
             val userWithId = user.copy(id = userId)
-            
-            userDao.insertLocations(userWithId.toStudyPlaceEntities())
-            userDao.insertSchedules(userWithId.toScheduleEntities())
+
+            // Replace the user's child collections atomically to avoid duplicates.
+            userDao.deleteLocationsForUser(userId)
+            userDao.deleteSchedulesForUser(userId)
+
+            val studyPlaceEntities = userWithId.toStudyPlaceEntities()
+            if (studyPlaceEntities.isNotEmpty()) {
+                userDao.insertLocations(studyPlaceEntities)
+            }
+
+            val scheduleEntities = userWithId.toScheduleEntities()
+            if (scheduleEntities.isNotEmpty()) {
+                userDao.insertSchedules(scheduleEntities)
+            }
             
             userId
         }
