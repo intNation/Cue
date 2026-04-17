@@ -18,14 +18,21 @@ class ContextPollingWorker(
         val database = (applicationContext as CueApplication).database
         val snapshotDao = database.contextSnapshotDao()
         val snapshotRepo = ContextSnapShotRepositoryImpl(snapshotDao)
-        val contextEngine = MockContextEngine()
+        val userRepo = UserRepositoryImpl(database, database.userDao())
+        
+        val contextEngine = com.cue.context.impl.ContextEngineImpl(
+            userRepo,
+            com.cue.context.provider.PhoneUsageProvider(applicationContext),
+            com.cue.context.provider.ConnectivityProvider(applicationContext),
+            com.cue.context.provider.LocationProvider(applicationContext),
+            com.cue.context.provider.WeatherProvider()
+        )
 
         // Capture context without a session ID (Ghost Snapshot)
         val snapshot = contextEngine.captureSnapshot(sessionId = null)
         snapshotRepo.insertSnapshot(snapshot)
 
         // Reschedule next capture after this one completes
-        val userRepo = UserRepositoryImpl(database, database.userDao())
         userRepo.getCurrentUser()?.let { user ->
             ScheduleManager(applicationContext).updateSchedule(user.weeklySchedule)
         }

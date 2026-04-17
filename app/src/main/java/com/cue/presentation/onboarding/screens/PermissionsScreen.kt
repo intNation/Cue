@@ -1,6 +1,9 @@
 package com.cue.presentation.onboarding.screens
 
 import android.Manifest
+import android.content.Intent
+import android.net.Uri
+import android.provider.Settings
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
@@ -17,6 +20,7 @@ import androidx.compose.material.icons.filled.CalendarToday
 import androidx.compose.material.icons.filled.DirectionsRun
 import androidx.compose.material.icons.filled.LocationOn
 import androidx.compose.material.icons.filled.Shield
+import androidx.compose.material.icons.filled.Smartphone
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -25,6 +29,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -37,14 +42,17 @@ fun PermissionsScreen(
     calendarEnabled: Boolean,
     sleepEnabled: Boolean,
     movementEnabled: Boolean,
+    phoneUsageEnabled: Boolean,
     onLocationToggle: (Boolean) -> Unit,
     onCalendarToggle: (Boolean) -> Unit,
     onSleepToggle: (Boolean) -> Unit,
     onMovementToggle: (Boolean) -> Unit,
+    onPhoneUsageToggle: (Boolean) -> Unit,
     onComplete: () -> Unit,
     onCustomizeLater: () -> Unit
 ) {
     val scrollState = rememberScrollState()
+    val context = LocalContext.current
 
     // Permission Launchers
     val locationLauncher = rememberLauncherForActivityResult(
@@ -63,6 +71,15 @@ fun PermissionsScreen(
         contract = ActivityResultContracts.RequestPermission()
     ) { isGranted -> onSleepToggle(isGranted) }
 
+    // Usage Stats Launcher (Special Access)
+    val usageLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.StartActivityForResult()
+    ) { 
+        // Note: Re-checking actual app-op state in the VM would be better,
+        // but for onboarding we let the user manually confirm the toggle.
+        onPhoneUsageToggle(true)
+    }
+
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -73,7 +90,7 @@ fun PermissionsScreen(
                 .fillMaxSize()
                 .verticalScroll(scrollState)
                 .padding(horizontal = 24.dp)
-                .padding(top = 60.dp, bottom = 160.dp)
+                .padding(top = 60.dp, bottom = 180.dp)
         ) {
             // Top Privacy Header
             Row(
@@ -162,6 +179,23 @@ fun PermissionsScreen(
                         modifier = Modifier.weight(1f)
                     )
                 }
+
+                PermissionCard(
+                    title = "Phone Usage",
+                    description = "Analyze digital habits in the 2 hours before you study to detect overwhelm.",
+                    icon = Icons.Default.Smartphone,
+                    isEnabled = phoneUsageEnabled,
+                    onToggle = {
+                        if (!phoneUsageEnabled) {
+                            val intent = Intent(Settings.ACTION_USAGE_ACCESS_SETTINGS)
+                            usageLauncher.launch(intent)
+                        } else {
+                            onPhoneUsageToggle(false)
+                        }
+                    },
+                    modifier = Modifier.fillMaxWidth()
+                )
+
                 Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
                     PermissionCard(
                         title = "Sleep",
@@ -213,7 +247,7 @@ fun PermissionsScreen(
                 .padding(24.dp),
             verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
-            OnboardingComponents.GradientButton("Continue", null , onComplete, Modifier.fillMaxWidth().height(56.dp))
+            OnboardingComponents.GradientButton("Complete Setup", null, onComplete, Modifier.fillMaxWidth().height(56.dp))
             Button(
                 onClick = onCustomizeLater,
                 colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.surfaceContainerHigh),
@@ -242,15 +276,14 @@ fun PermissionCard(
 ) {
     Box(
         modifier = modifier
-            .height(110.dp)
             .clip(RoundedCornerShape(16.dp))
             .background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.4f))
             .border(1.dp, Color.White.copy(alpha = 0.05f), RoundedCornerShape(16.dp))
             .clickable { onToggle() }
             .padding(12.dp)
     ) {
-        Column(modifier = Modifier.fillMaxSize(), verticalArrangement = Arrangement.SpaceBetween) {
-            Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+        Column(verticalArrangement = Arrangement.SpaceBetween) {
+            Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
                 Box(
                     modifier = Modifier
                         .size(32.dp)
@@ -286,6 +319,8 @@ fun PermissionCard(
                 }
             }
             
+            Spacer(modifier = Modifier.height(12.dp))
+
             Column {
                 Text(
                     text = title,
@@ -298,7 +333,7 @@ fun PermissionCard(
                     style = MaterialTheme.typography.labelSmall,
                     lineHeight = 12.sp,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    maxLines = 2
+                    maxLines = 3
                 )
             }
         }

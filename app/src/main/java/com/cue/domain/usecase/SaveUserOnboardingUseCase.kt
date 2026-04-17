@@ -21,6 +21,7 @@ class SaveUserOnboardingUseCase(
      * @param calendarEnabled Whether calendar-based signals are enabled.
      * @param sleepEnabled Whether sleep-based signals are enabled.
      * @param movementEnabled Whether movement-based signals are enabled.
+     * @param phoneUsageEnabled Whether phone usage signals are enabled.
      */
     suspend operator fun invoke(
         studyPlaces: List<StudyPlace>,
@@ -29,7 +30,8 @@ class SaveUserOnboardingUseCase(
         locationEnabled: Boolean,
         calendarEnabled: Boolean,
         sleepEnabled: Boolean,
-        movementEnabled: Boolean
+        movementEnabled: Boolean,
+        phoneUsageEnabled: Boolean
     ): Long {
         // Retrieve existing user if any, or create a new one
         val existingUser = repository.getCurrentUser() ?: User()
@@ -43,7 +45,8 @@ class SaveUserOnboardingUseCase(
             locationEnabled = locationEnabled,
             calendarEnabled = calendarEnabled,
             sleepEnabled = sleepEnabled,
-            movementEnabled = movementEnabled
+            movementEnabled = movementEnabled,
+            phoneUsageEnabled = phoneUsageEnabled
         )
 
         //save the updated user with their onboarding data to room database

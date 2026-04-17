@@ -44,6 +44,9 @@ data class UserEntity(
     @ColumnInfo(name = "movement_enabled")
     val movementEnabled: Boolean = false,
 
+    @ColumnInfo(name = "phone_usage_enabled")
+    val phoneUsageEnabled: Boolean = false,
+
     @ColumnInfo(name = "created_at")
     val createdAt: Long = System.currentTimeMillis()
 )

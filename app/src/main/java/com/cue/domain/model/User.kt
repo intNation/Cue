@@ -64,5 +64,6 @@ data class User(
     val locationEnabled: Boolean = false,
     val calendarEnabled: Boolean = false,
     val sleepEnabled: Boolean = false,
-    val movementEnabled: Boolean = false
+    val movementEnabled: Boolean = false,
+    val phoneUsageEnabled: Boolean = false
 )
