@@ -126,7 +126,7 @@ class LocationProvider(private val context: Context) : StudyLocationProvider {
         val locationManager = context.getSystemService(Context.LOCATION_SERVICE) as? LocationManager
             ?: return null
 
-        val providers = locationManager.getProviders(true)
+        val providers =  locationManager.getProviders(true)
         var bestLocation: Location? = null
 
         for (provider in providers) {

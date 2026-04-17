@@ -25,7 +25,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.cue.domain.model.SuccessMetric
-import com.cue.presentation.components.Buttons
+import com.cue.presentation.components.OnboardingComponents
+import com.cue.presentation.components.OnboardingComponents.StepIndicator
 
 @Composable
 fun SuccessMetricScreen(
@@ -146,7 +147,7 @@ fun SuccessMetricScreen(
                 .padding(horizontal = 24.dp)
                 .padding(bottom = 32.dp, top = 24.dp)
         ) {
-            Buttons.GradientButton("Complete Setup", Icons.AutoMirrored.Filled.ArrowForward, onComplete, Modifier.fillMaxWidth().height(64.dp))
+            OnboardingComponents.GradientButton("Complete Setup", Icons.AutoMirrored.Filled.ArrowForward, onComplete, Modifier.fillMaxWidth().height(64.dp))
         }
     }
 }

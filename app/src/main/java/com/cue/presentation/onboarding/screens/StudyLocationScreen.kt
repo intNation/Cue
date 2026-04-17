@@ -2,11 +2,8 @@ package com.cue.presentation.onboarding.screens
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
@@ -30,7 +27,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.cue.domain.model.StudyLocation
 import com.cue.domain.model.StudyPlace
-import com.cue.presentation.components.Buttons
+import com.cue.presentation.components.OnboardingComponents
+import com.cue.presentation.components.OnboardingComponents.StepIndicator
 import com.cue.presentation.theme.surface_container_highest
 import com.cue.presentation.theme.surface_container_low
 
@@ -193,7 +191,7 @@ fun StudyLocationScreen(
                 .padding(horizontal = 24.dp)
                 .padding(bottom = 32.dp, top = 24.dp)
         ) {
-            Buttons.GradientButton("Continue", Icons.AutoMirrored.Filled.ArrowForward, onContinue, Modifier.fillMaxWidth().height(64.dp))
+            OnboardingComponents.GradientButton("Continue", Icons.AutoMirrored.Filled.ArrowForward, onContinue, Modifier.fillMaxWidth().height(64.dp))
         }
     }
 }

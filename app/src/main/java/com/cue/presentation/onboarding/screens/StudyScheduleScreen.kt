@@ -28,7 +28,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.cue.domain.model.DaySchedule
-import com.cue.presentation.components.Buttons
+import com.cue.presentation.components.OnboardingComponents
 
 @Composable
 fun StudyScheduleScreen(
@@ -39,6 +39,7 @@ fun StudyScheduleScreen(
 ) {
     val scrollState = rememberScrollState()
     val days = listOf("M", "T", "W", "T", "F", "S", "S")
+
     
     // Local state to track expanded cards for editing times
     var expandedDay by remember { mutableStateOf<Int?>(null) }
@@ -55,7 +56,7 @@ fun StudyScheduleScreen(
                 .padding(horizontal = 24.dp)
                 .padding(top = 80.dp, bottom = 140.dp)
         ) {
-            StepIndicator(currentStep = 2)
+            OnboardingComponents.StepIndicator(currentStep = 2)
             
             Spacer(modifier = Modifier.height(48.dp))
 
@@ -193,7 +194,7 @@ fun StudyScheduleScreen(
                 .padding(horizontal = 24.dp)
                 .padding(bottom = 32.dp, top = 24.dp)
         ) {
-            Buttons.GradientButton("Continue", Icons.AutoMirrored.Filled.ArrowForward, onContinue, Modifier.fillMaxWidth().height(64.dp))
+            OnboardingComponents.GradientButton("Continue", Icons.AutoMirrored.Filled.ArrowForward, onContinue, Modifier.fillMaxWidth().height(64.dp))
         }
     }
 }

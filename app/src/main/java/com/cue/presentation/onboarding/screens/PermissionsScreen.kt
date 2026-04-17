@@ -17,7 +17,6 @@ import androidx.compose.material.icons.filled.CalendarToday
 import androidx.compose.material.icons.filled.DirectionsRun
 import androidx.compose.material.icons.filled.LocationOn
 import androidx.compose.material.icons.filled.Shield
-import androidx.compose.material.icons.filled.VerifiedUser
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -30,8 +29,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.cue.presentation.components.Buttons
-import com.cue.presentation.components.Buttons.GradientButton
+import com.cue.presentation.components.OnboardingComponents
 
 @Composable
 fun PermissionsScreen(
@@ -215,7 +213,7 @@ fun PermissionsScreen(
                 .padding(24.dp),
             verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
-            Buttons.GradientButton("Continue", null , onComplete, Modifier.fillMaxWidth().height(56.dp))
+            OnboardingComponents.GradientButton("Continue", null , onComplete, Modifier.fillMaxWidth().height(56.dp))
             Button(
                 onClick = onCustomizeLater,
                 colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.surfaceContainerHigh),

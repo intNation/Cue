@@ -42,6 +42,8 @@ class OnboardingViewModel(
     private val _uiState = MutableStateFlow(OnboardingUiState())
     val uiState: StateFlow<OnboardingUiState> = _uiState.asStateFlow()
 
+
+
     fun onAddStudyPlace(category: StudyLocation, label: String, lat: Double, lng: Double) {
         val newPlace = StudyPlace(
             label = label,
