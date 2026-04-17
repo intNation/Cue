@@ -77,7 +77,15 @@ class MainActivity : ComponentActivity() {
                 val sessionRepo = StudySessionRepositoryImpl(sessionDao)
                 val snapshotRepo = ContextSnapShotRepositoryImpl(snapshotDao)
                 val checkInRepo = DailyCheckinRepositoryImpl(checkInDao)
-                val contextEngine = MockContextEngine()
+                val userRepo = UserRepositoryImpl(db, db.userDao())
+
+                val contextEngine = com.cue.context.impl.ContextEngineImpl(
+                    userRepo,
+                    com.cue.context.provider.PhoneUsageProvider(applicationContext),
+                    com.cue.context.provider.ConnectivityProvider(applicationContext),
+                    com.cue.context.provider.LocationProvider(applicationContext),
+                    com.cue.context.provider.WeatherProvider()
+                )
 
                 return MainViewModel(
                     StartSessionUseCase(sessionRepo, contextEngine, snapshotRepo),
@@ -175,10 +183,12 @@ class MainActivity : ComponentActivity() {
                             calendarEnabled = onboardingState.calendarEnabled,
                             sleepEnabled = onboardingState.sleepEnabled,
                             movementEnabled = onboardingState.movementEnabled,
+                            phoneUsageEnabled = onboardingState.phoneUsageEnabled,
                             onLocationToggle = { onboardingViewModel.toggleLocationPermission(it) },
                             onCalendarToggle = { onboardingViewModel.toggleCalendarPermission(it) },
                             onSleepToggle = { onboardingViewModel.toggleSleepPermission(it) },
                             onMovementToggle = { onboardingViewModel.toggleMovementPermission(it) },
+                            onPhoneUsageToggle = { onboardingViewModel.togglePhoneUsagePermission(it) },
                             onComplete = { onboardingViewModel.completeOnboarding() },
                             onCustomizeLater = { onboardingViewModel.completeOnboarding() }
                         )
