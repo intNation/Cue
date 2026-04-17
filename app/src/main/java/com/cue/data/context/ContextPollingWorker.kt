@@ -21,14 +21,8 @@ class ContextPollingWorker(
         val contextEngine = MockContextEngine()
 
         // Capture context without a session ID (Ghost Snapshot)
-        val snapshot = contextEngine.captureSnapshot(sessionId = 0) 
-        
-        val ghostSnapshot = snapshot.copy(
-            sessionId = null, 
-            timestamp = System.currentTimeMillis()
-        )
-
-        snapshotRepo.insertSnapshot(ghostSnapshot)
+        val snapshot = contextEngine.captureSnapshot(sessionId = null)
+        snapshotRepo.insertSnapshot(snapshot)
 
         // Reschedule next capture after this one completes
         val userRepo = UserRepositoryImpl(database, database.userDao())
