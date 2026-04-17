@@ -9,5 +9,5 @@ interface ContextEngine {
     /**
      * Captures a snapshot of the current context for a given session.
      */
-    suspend fun captureSnapshot(sessionId: Long): ContextSnapshot
+    suspend fun captureSnapshot(sessionId: Long?): ContextSnapshot
 }

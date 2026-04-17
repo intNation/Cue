@@ -35,13 +35,29 @@ import com.cue.presentation.theme.surface_container_low
 @Composable
 fun StudyLocationScreen(
     studyPlaces: List<StudyPlace>,
-    onAddPlace: (StudyLocation, String, Double, Double) -> Unit,
+    isAnchoringPlace: Boolean,
+    anchorError: String?,
+    onAddPlace: (StudyLocation, String) -> Unit,
     onRemovePlace: (StudyPlace) -> Unit,
+    onDismissAnchorError: () -> Unit,
     onContinue: () -> Unit
 ) {
     val scrollState = rememberScrollState()
     var showAddDialog by remember { mutableStateOf<StudyLocation?>(null) }
     var tempLabel by remember { mutableStateOf("") }
+    var previousPlaceCount by remember { mutableIntStateOf(studyPlaces.size) }
+
+    LaunchedEffect(studyPlaces.size, isAnchoringPlace, anchorError, showAddDialog) {
+        if (
+            showAddDialog != null &&
+            !isAnchoringPlace &&
+            anchorError == null &&
+            studyPlaces.size > previousPlaceCount
+        ) {
+            showAddDialog = null
+        }
+        previousPlaceCount = studyPlaces.size
+    }
     
     Box(
         modifier = Modifier
@@ -111,13 +127,29 @@ fun StudyLocationScreen(
             Spacer(modifier = Modifier.height(16.dp))
 
             Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-                PlaceTypeChip("Home", Icons.Default.Home, Modifier.weight(1f)) { showAddDialog = StudyLocation.HOME; tempLabel = "Home" }
-                PlaceTypeChip("Cafe", Icons.Default.LocationOn, Modifier.weight(1f)) { showAddDialog = StudyLocation.CAFE; tempLabel = "My Local Cafe" }
+                PlaceTypeChip("Home", Icons.Default.Home, Modifier.weight(1f)) {
+                    onDismissAnchorError()
+                    showAddDialog = StudyLocation.HOME
+                    tempLabel = "Home"
+                }
+                PlaceTypeChip("Cafe", Icons.Default.LocationOn, Modifier.weight(1f)) {
+                    onDismissAnchorError()
+                    showAddDialog = StudyLocation.CAFE
+                    tempLabel = "My Local Cafe"
+                }
             }
             Spacer(modifier = Modifier.height(12.dp))
             Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-                PlaceTypeChip("Library", Icons.Default.Place, Modifier.weight(1f)) { showAddDialog = StudyLocation.LIBRARY; tempLabel = "University Library" }
-                PlaceTypeChip("Other", Icons.Default.MoreVert, Modifier.weight(1f)) { showAddDialog = StudyLocation.OTHER; tempLabel = "Quiet Spot" }
+                PlaceTypeChip("Library", Icons.Default.Place, Modifier.weight(1f)) {
+                    onDismissAnchorError()
+                    showAddDialog = StudyLocation.LIBRARY
+                    tempLabel = "University Library"
+                }
+                PlaceTypeChip("Other", Icons.Default.MoreVert, Modifier.weight(1f)) {
+                    onDismissAnchorError()
+                    showAddDialog = StudyLocation.OTHER
+                    tempLabel = "Quiet Spot"
+                }
             }
 
             Spacer(modifier = Modifier.height(40.dp))
@@ -148,7 +180,10 @@ fun StudyLocationScreen(
         // Add Place Dialog
         if (showAddDialog != null) {
             AlertDialog(
-                onDismissRequest = { showAddDialog = null },
+                onDismissRequest = {
+                    onDismissAnchorError()
+                    showAddDialog = null
+                },
                 title = { Text("Anchor this location?") },
                 text = {
                     Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
@@ -159,19 +194,30 @@ fun StudyLocationScreen(
                             label = { Text("Label") },
                             modifier = Modifier.fillMaxWidth()
                         )
+                        if (anchorError != null) {
+                            Text(
+                                text = anchorError,
+                                style = MaterialTheme.typography.bodySmall,
+                                color = MaterialTheme.colorScheme.error
+                            )
+                        }
                     }
                 },
                 confirmButton = {
-                    TextButton(onClick = {
-                        // Mocking current location for the prototype
-                        onAddPlace(showAddDialog!!, tempLabel, 40.7128, -74.0060)
-                        showAddDialog = null
-                    }) {
-                        Text("CONFIRM ANCHOR")
+                    TextButton(
+                        enabled = !isAnchoringPlace,
+                        onClick = {
+                            onAddPlace(showAddDialog!!, tempLabel)
+                        }
+                    ) {
+                        Text(if (isAnchoringPlace) "ANCHORING..." else "CONFIRM ANCHOR")
                     }
                 },
                 dismissButton = {
-                    TextButton(onClick = { showAddDialog = null }) {
+                    TextButton(onClick = {
+                        onDismissAnchorError()
+                        showAddDialog = null
+                    }) {
                         Text("CANCEL")
                     }
                 }

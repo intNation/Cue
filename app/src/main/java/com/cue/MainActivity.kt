@@ -149,10 +149,13 @@ class MainActivity : ComponentActivity() {
                     when (onboardingState.currentStep) {
                         1 -> StudyLocationScreen(
                             studyPlaces = onboardingState.studyPlaces,
-                            onAddPlace = { category, label, lat, lng -> 
-                                onboardingViewModel.onAddStudyPlace(category, label, lat, lng) 
+                            isAnchoringPlace = onboardingState.isAnchoringPlace,
+                            anchorError = onboardingState.anchorError,
+                            onAddPlace = { category, label ->
+                                onboardingViewModel.onAddStudyPlace(category, label)
                             },
                             onRemovePlace = { onboardingViewModel.onRemoveStudyPlace(it) },
+                            onDismissAnchorError = { onboardingViewModel.clearAnchorError() },
                             onContinue = { onboardingViewModel.nextStep() }
                         )
                         2 -> StudyScheduleScreen(

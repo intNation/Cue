@@ -3,6 +3,7 @@ package com.cue
 import android.app.Application
 import androidx.room.Room
 import com.cue.data.local.CueDatabase
+import com.cue.data.local.CueDatabaseMigrations
 
 class CueApplication : Application() {
     
@@ -16,7 +17,7 @@ class CueApplication : Application() {
             CueDatabase::class.java,
             "cue.db"
         )
-        .fallbackToDestructiveMigration()
+        .addMigrations(CueDatabaseMigrations.MIGRATION_6_7)
         .build()
     }
 }

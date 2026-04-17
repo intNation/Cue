@@ -8,7 +8,7 @@ import com.cue.domain.repository.ContextEngine
  * Returns randomized dummy data to simulate signal collection.
  */
 class MockContextEngine : ContextEngine {
-    override suspend fun captureSnapshot(sessionId: Long): ContextSnapshot {
+    override suspend fun captureSnapshot(sessionId: Long?): ContextSnapshot {
         val phoneUsages = listOf("High", "Medium", "Low")
         val connectivities = listOf("WiFi", "Cellular", "None")
         val weathers = listOf("Sunny", "Rainy", "Cloudy")
