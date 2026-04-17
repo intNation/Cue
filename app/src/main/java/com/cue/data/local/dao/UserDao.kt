@@ -21,6 +21,12 @@ interface UserDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertSchedules(schedules: List<WeeklyScheduleEntity>)
 
+    @Query("DELETE FROM StudyLocation WHERE user_id = :userId")
+    suspend fun deleteLocationsForUser(userId: Long)
+
+    @Query("DELETE FROM WeeklySchedule WHERE user_id = :userId")
+    suspend fun deleteSchedulesForUser(userId: Long)
+
     @Transaction
     @Query("SELECT * FROM User WHERE id = :userId")
     suspend fun getUserWithDetails(userId: Long): UserWithDetails?
