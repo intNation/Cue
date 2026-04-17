@@ -113,7 +113,7 @@ class LocationProvider(private val context: Context) : StudyLocationProvider {
     private fun isLocationEnabled(): Boolean {
         val locationManager = context.getSystemService(Context.LOCATION_SERVICE) as? LocationManager
             ?: return false
-        
+
         return if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.P) {
             locationManager.isLocationEnabled
         } else {
@@ -135,7 +135,7 @@ class LocationProvider(private val context: Context) : StudyLocationProvider {
             } catch (e: SecurityException) {
                 null
             } ?: continue
-            
+
             if (bestLocation == null || l.accuracy < bestLocation.accuracy) {
                 bestLocation = l
             }
