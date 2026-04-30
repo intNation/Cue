@@ -27,6 +27,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -37,8 +38,6 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import com.cue.core.util.ScheduleManager
-import com.cue.data.context.MockContextEngine
-import com.cue.data.local.CueDatabase
 import com.cue.data.repository.ContextSnapShotRepositoryImpl
 import com.cue.data.repository.DailyCheckinRepositoryImpl
 import com.cue.data.repository.InsightRepositoryImpl
@@ -51,7 +50,7 @@ import com.cue.domain.usecase.GetActiveSessionUseCase
 import com.cue.domain.usecase.SaveUserOnboardingUseCase
 import com.cue.domain.usecase.StartSessionUseCase
 import com.cue.domain.usecase.SubmitDailyCheckInUseCase
-import com.cue.presentation.insights.InsightsScreen
+import com.cue.presentation.insights.screens.InsightsScreen
 import com.cue.presentation.insights.InsightsViewModel
 import com.cue.presentation.main.MainViewModel
 import com.cue.presentation.onboarding.OnboardingViewModel
@@ -151,7 +150,7 @@ class MainActivity : ComponentActivity() {
                 val insightsState by insightsViewModel.uiState.collectAsState()
                 
                 var forceOnboarding by remember { mutableStateOf(true) }
-                var currentTab by remember { mutableStateOf(0) } // 0 = Home, 1 = Insights
+                var currentTab by remember { mutableIntStateOf(0) } // 0 = Home, 1 = Insights
 
                 if (forceOnboarding && !onboardingState.onboardingCompleted) {
                     when (onboardingState.currentStep) {

@@ -25,7 +25,8 @@ fun UserWithDetails.toDomain() = User(
     locationEnabled = user.locationEnabled,
     calendarEnabled = user.calendarEnabled,
     sleepEnabled = user.sleepEnabled,
-    movementEnabled = user.movementEnabled
+    movementEnabled = user.movementEnabled,
+    phoneUsageEnabled = user.phoneUsageEnabled
 )
 
 /**
@@ -65,6 +66,7 @@ fun User.toEntity() = UserEntity(
     calendarEnabled = calendarEnabled,
     sleepEnabled = sleepEnabled,
     movementEnabled = movementEnabled,
+    phoneUsageEnabled = phoneUsageEnabled,
     createdAt = System.currentTimeMillis()
 )
 
