@@ -5,13 +5,13 @@ import androidx.room.Room
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.cue.data.local.dao.UserDao
-import com.cue.data.local.entity.UserEntity
 import com.cue.data.local.mappers.toDomain
 import com.cue.data.local.mappers.toEntity
-import com.cue.data.local.mappers.toLocationEntities
 import com.cue.data.local.mappers.toScheduleEntities
+import com.cue.data.local.mappers.toStudyPlaceEntities
 import com.cue.domain.model.DaySchedule
 import com.cue.domain.model.StudyLocation
+import com.cue.domain.model.StudyPlace
 import com.cue.domain.model.SuccessMetric
 import com.cue.domain.model.User
 import kotlinx.coroutines.runBlocking
@@ -41,27 +41,28 @@ class UserPersistenceTest {
     }
 
     @Test
-    fun writeUserAndReadWithDetails() = runBlocking {
+    fun writeUserWithStudyPlacesAndReadBack() = runBlocking {
         // Arrange
         val user = User(
-            id = 0, // Room will generate ID
-            firstName = "John",
-            lastName = "Doe",
-            email = "john@example.com",
-            preferredLocations = listOf(StudyLocation.LIBRARY, StudyLocation.HOME),
-            weeklySchedule = listOf(
-                DaySchedule(dayOfWeek = 1, startTime = "09:00", endTime = "17:00"),
-                DaySchedule(dayOfWeek = 2, isFlexible = true)
+            id = 0,
+            firstName = "Alice",
+            studyPlaces = listOf(
+                StudyPlace(label = "Main Library", category = StudyLocation.LIBRARY, latitude = -26.1, longitude = 28.0),
+                StudyPlace(label = "Home Desk", category = StudyLocation.HOME, latitude = -26.2, longitude = 28.1)
             ),
-            successMetric = SuccessMetric.TIME_DURATION,
+            weeklySchedule = listOf(
+                DaySchedule(dayOfWeek = 1, startTime = "18:00", endTime = "21:00")
+            ),
+            phoneUsageEnabled = true,
+            locationEnabled = true,
             isOnboardingCompleted = true
         )
 
-        // Act - Manual insertion simulating UserRepositoryImpl.saveUser
+        // Act
         val userId = userDao.insertUser(user.toEntity())
         val userWithId = user.copy(id = userId)
         
-        userDao.insertLocations(userWithId.toLocationEntities())
+        userDao.insertLocations(userWithId.toStudyPlaceEntities())
         userDao.insertSchedules(userWithId.toScheduleEntities())
 
         // Retrieve
@@ -71,11 +72,10 @@ class UserPersistenceTest {
         assertNotNull(loaded)
         val domainUser = loaded!!.toDomain()
         
-        assertEquals("John", domainUser.firstName)
-        assertEquals(2, domainUser.preferredLocations.size)
-        assertEquals(StudyLocation.LIBRARY, domainUser.preferredLocations[0])
-        assertEquals(2, domainUser.weeklySchedule.size)
-        assertEquals("09:00", domainUser.weeklySchedule.find { it.dayOfWeek == 1 }?.startTime)
-        assertEquals(true, domainUser.weeklySchedule.find { it.dayOfWeek == 2 }?.isFlexible)
+        assertEquals(2, domainUser.studyPlaces.size)
+        assertEquals("Main Library", domainUser.studyPlaces[0].label)
+        assertEquals(true, domainUser.phoneUsageEnabled)
+        assertEquals(true, domainUser.locationEnabled)
+        assertEquals(1, domainUser.weeklySchedule.size)
     }
 }
