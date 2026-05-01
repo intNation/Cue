@@ -13,7 +13,11 @@ import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
 import org.junit.Before
 import org.junit.Test
+import org.junit.runner.RunWith
+import org.robolectric.RobolectricTestRunner
+import org.robolectric.annotation.Config
 
+@RunWith(RobolectricTestRunner::class)
 class PhoneUsageProviderTest {
 
     private val context = mockk<Context>()
@@ -32,9 +36,7 @@ class PhoneUsageProviderTest {
     @Test
     fun `when usage permission is disabled, return SYSTEM_SETTING_DISABLED`() = runTest {
         // Arrange
-        every { 
-            appOpsManager.unsafeCheckOpNoThrow(AppOpsManager.OPSTR_GET_USAGE_STATS, any(), "com.cue") 
-        } returns AppOpsManager.MODE_IGNORED
+        stubUsageStatsPermission(AppOpsManager.MODE_IGNORED)
 
         // Act
         val result = provider.getPhoneUsageLevel()
@@ -47,9 +49,7 @@ class PhoneUsageProviderTest {
     @Test
     fun `when usage is over 60 minutes, return HIGH`() = runTest {
         // Arrange
-        every { 
-            appOpsManager.unsafeCheckOpNoThrow(AppOpsManager.OPSTR_GET_USAGE_STATS, any(), "com.cue") 
-        } returns AppOpsManager.MODE_ALLOWED
+        stubUsageStatsPermission(AppOpsManager.MODE_ALLOWED)
 
         val mockStat = mockk<UsageStats>()
         every { mockStat.totalTimeInForeground } returns 70 * 60 * 1000L // 70 minutes
@@ -69,9 +69,7 @@ class PhoneUsageProviderTest {
     @Test
     fun `when usage is between 20 and 60 minutes, return MEDIUM`() = runTest {
         // Arrange
-        every { 
-            appOpsManager.unsafeCheckOpNoThrow(AppOpsManager.OPSTR_GET_USAGE_STATS, any(), "com.cue") 
-        } returns AppOpsManager.MODE_ALLOWED
+        stubUsageStatsPermission(AppOpsManager.MODE_ALLOWED)
 
         val mockStat = mockk<UsageStats>()
         every { mockStat.totalTimeInForeground } returns 30 * 60 * 1000L // 30 minutes
@@ -91,9 +89,7 @@ class PhoneUsageProviderTest {
     @Test
     fun `when usage is low, return LOW`() = runTest {
         // Arrange
-        every { 
-            appOpsManager.unsafeCheckOpNoThrow(AppOpsManager.OPSTR_GET_USAGE_STATS, any(), "com.cue") 
-        } returns AppOpsManager.MODE_ALLOWED
+        stubUsageStatsPermission(AppOpsManager.MODE_ALLOWED)
 
         val mockStat = mockk<UsageStats>()
         every { mockStat.totalTimeInForeground } returns 5 * 60 * 1000L // 5 minutes
@@ -108,5 +104,15 @@ class PhoneUsageProviderTest {
         // Assert
         assert(result is ProviderResult.Available)
         assertEquals(PhoneUsageLevelSignal.LOW, (result as ProviderResult.Available).data)
+    }
+
+    @Suppress("DEPRECATION")
+    private fun stubUsageStatsPermission(mode: Int) {
+        every {
+            appOpsManager.checkOpNoThrow(AppOpsManager.OPSTR_GET_USAGE_STATS, any(), "com.cue")
+        } returns mode
+        every {
+            appOpsManager.unsafeCheckOpNoThrow(AppOpsManager.OPSTR_GET_USAGE_STATS, any(), "com.cue")
+        } returns mode
     }
 }

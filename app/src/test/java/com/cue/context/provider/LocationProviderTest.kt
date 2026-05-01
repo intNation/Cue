@@ -11,11 +11,17 @@ import com.cue.domain.model.StudyPlace
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.mockkStatic
+import io.mockk.unmockkAll
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
+import org.junit.After
 import org.junit.Before
 import org.junit.Test
+import org.junit.runner.RunWith
+import org.robolectric.annotation.Config
+import org.robolectric.RobolectricTestRunner
 
+@RunWith(RobolectricTestRunner::class)
 class LocationProviderTest {
 
     private val context = mockk<Context>(relaxed = true)
@@ -25,11 +31,18 @@ class LocationProviderTest {
     @Before
     fun setup() {
         every { context.getSystemService(Context.LOCATION_SERVICE) } returns locationManager
+        every { locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER) } returns true
+        every { locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER) } returns true
         provider = LocationProvider(context)
         
         // Mock permission check to always return true for this unit test
         // In a real app, this would be handled by the ActivityResultLauncher
-        mockkStatic("androidx.core.content.ContextCompat")
+
+    }
+
+    @After
+    fun tearDown() {
+        unmockkAll()
     }
 
     @Test
@@ -41,8 +54,8 @@ class LocationProviderTest {
         every { mockLocation.hasAccuracy() } returns true
         every { mockLocation.accuracy } returns 10f
         
-        every { locationManager.getProviders(true) } returns listOf("gps")
-        every { locationManager.getLastKnownLocation("gps") } returns mockLocation
+        every { locationManager.getProviders(true) } returns listOf(LocationManager.GPS_PROVIDER)
+        every { locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER) } returns mockLocation
         
         // Act
         val result = provider.getWhetherLocation()
@@ -68,8 +81,8 @@ class LocationProviderTest {
         every { mockLocation.hasAccuracy() } returns true
         every { mockLocation.accuracy } returns 10f
         
-        every { locationManager.getProviders(true) } returns listOf("gps")
-        every { locationManager.getLastKnownLocation("gps") } returns mockLocation
+        every { locationManager.getProviders(true) } returns listOf(LocationManager.GPS_PROVIDER)
+        every { locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER) } returns mockLocation
 
         // Distance matching
         mockkStatic(Location::class)
@@ -95,7 +108,8 @@ class LocationProviderTest {
     @Test
     fun `when location is disabled, return SYSTEM_SETTING_DISABLED`() = runTest {
         // Arrange
-        every { locationManager.isLocationEnabled } returns false
+        every { locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER) } returns false
+        every { locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER) } returns false
 
         // Act
         val result = provider.getWhetherLocation()
