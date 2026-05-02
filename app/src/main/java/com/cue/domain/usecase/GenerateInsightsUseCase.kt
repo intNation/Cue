@@ -4,6 +4,7 @@ import com.cue.context.contracts.WhetherSignal
 import com.cue.domain.model.ContextSnapshot
 import com.cue.domain.model.Insight
 import com.cue.domain.model.InsightType
+import com.cue.domain.model.SessionStatus
 import com.cue.domain.repository.ContextSnapShotRepository
 import com.cue.domain.repository.DailyCheckinRepository
 import com.cue.domain.repository.InsightRepository
@@ -30,11 +31,30 @@ class GenerateInsightsUseCase(
     suspend operator fun invoke() {
         val user = userRepository.getCurrentUser() ?: return
         val checkins = checkinRepository.getAllCheckIns()
-        val snapshots = snapshotRepository.getAllSnapshots()
-        val sessions = sessionRepository.getAllSessions()
+        val rawSnapshots = snapshotRepository.getAllSnapshots()
+        val rawSessions = sessionRepository.getAllSessions()
 
+        /*
+        Noise Filtering
+         */
+
+        //get the cleaned sessions
+        val cleanedSessions = rawSessions.filter { session ->
+            val startTime = session.startTime
+            val endTime = session.endTime ?: 0L
+            val durationMS = endTime - startTime
+            val durationMins = durationMS / (1000 * 60)
+
+            //fitler 1: ignore sessions with less than 5 minues duration and > 12 hour duration
+            durationMins in 5 ..  (12 * 60)
+
+        }
+
+
+        /**
+         * Occurences + frequency filtering
+         */
         //get all the timestamps of failed study sessions
-
         val failureTimestamps = mutableListOf<Long>()
 
         //add  all manual failed checkins
@@ -42,7 +62,7 @@ class GenerateInsightsUseCase(
 
         //add silent failures to the list
 
-        failureTimestamps.addAll(getSilentFailureTimeStamps(user.weeklySchedule,sessions))
+        failureTimestamps.addAll(getSilentFailureTimeStamps(user.weeklySchedule,cleanedSessions))
 
         //initialize the insight type x occurrences map
         val insightTypeOccurrencesMap = mutableMapOf<InsightType, PatternOccurences>().apply{
@@ -55,7 +75,7 @@ class GenerateInsightsUseCase(
         // analysis loop, relate failures with context
 
         failureTimestamps.forEach { timestamp ->
-            val closestSnapshot = snapshots.minByOrNull { abs(it.timestamp - timestamp) }
+            val closestSnapshot = rawSnapshots.minByOrNull { abs(it.timestamp - timestamp) }
 
             // 1. Phone usage rule
             //count total failures of the phone usage insight
@@ -105,12 +125,12 @@ class GenerateInsightsUseCase(
         // Rule 1: High Phone Usage before Failure
         val negativeCheckins = checkins.filter { !it.didStudy }
         negativeCheckins.forEach { checkin ->
-            val closestSnapshot = snapshots.minByOrNull { abs(it.timestamp - checkin.timestamp) }
+            val closestSnapshot = rawSnapshots.minByOrNull { abs(it.timestamp - checkin.timestamp) }
             applyRules(user.id, closestSnapshot)
         }
         
         // Silent Failure Detection
-        detectSilentFailures(user.id, user.weeklySchedule, sessions, snapshots)
+        detectSilentFailures(user.id, user.weeklySchedule, rawSessions, rawSnapshots)
     }
 
     private suspend fun detectSilentFailures(
