@@ -11,7 +11,20 @@ import com.cue.domain.repository.InsightRepository
 import com.cue.domain.repository.StudySessionRepository
 import com.cue.domain.repository.UserRepository
 import java.util.Calendar
+import kotlin.collections.forEach
 import kotlin.math.abs
+data class PatternOccurences(
+    var totalFailures: Int = 0,
+    var matchingOccurrences: Int = 0
+)
+
+enum class TimeBuckets(val label:String)
+{
+    MORNING("Morning"),
+    AFTERNOON("Afternoon"),
+    EVENING("Evening"),
+    NIGHT("Night")
+}
 
 
 class GenerateInsightsUseCase(
@@ -21,12 +34,6 @@ class GenerateInsightsUseCase(
     private val snapshotRepository: ContextSnapShotRepository,
     private val insightRepository: InsightRepository
 ) {
-
-    data class PatternOccurences(
-        var totalFailures: Int = 0,
-        var matchingOccurrences: Int = 0
-    )
-
 
     suspend operator fun invoke() {
         val user = userRepository.getCurrentUser() ?: return
@@ -46,7 +53,7 @@ class GenerateInsightsUseCase(
             val durationMins = durationMS / (1000 * 60)
 
             //fitler 1: ignore sessions with less than 5 minues duration and > 12 hour duration
-            durationMins in 5 ..  (12 * 60)
+            durationMins in 5..(12 * 60)
 
         }
 
@@ -62,67 +69,82 @@ class GenerateInsightsUseCase(
 
         //add silent failures to the list
 
-        failureTimestamps.addAll(getSilentFailureTimeStamps(user.weeklySchedule,cleanedSessions))
+        failureTimestamps.addAll(getSilentFailureTimeStamps(user.weeklySchedule, cleanedSessions))
 
         //initialize the insight type x occurrences map
-        val insightTypeOccurrencesMap = mutableMapOf<InsightType, PatternOccurences>().apply{
-                InsightType.entries.forEach{
-                    put(it, PatternOccurences())
+        val insightTypeOccurrencesMap =
+            mutableMapOf<Pair<InsightType, TimeBuckets>, PatternOccurences>().apply {
+                InsightType.entries.forEach { type ->
+                    TimeBuckets.entries.forEach { bucket ->
+                        put(Pair(type, bucket), PatternOccurences())
+                    }
                 }
-        }
+            }
 
 
         // analysis loop, relate failures with context
-
         failureTimestamps.forEach { timestamp ->
             val closestSnapshot = rawSnapshots.minByOrNull { abs(it.timestamp - timestamp) }
-
+            val timeBucket = getTimeBucket(timestamp)
             // 1. Phone usage rule
             //count total failures of the phone usage insight
             if (closestSnapshot != null) {
-                insightTypeOccurrencesMap[InsightType.PHONE_USAGE]?.let {
-                    it.totalFailures++
+                if (closestSnapshot.phoneUsage != "UNKNOWN") {
+                    insightTypeOccurrencesMap[Pair(InsightType.PHONE_USAGE, timeBucket)]?.let {
+                        it.totalFailures++
 
-                    if (closestSnapshot.phoneUsage == "High") {
-                        it.matchingOccurrences++
+                        if (closestSnapshot.phoneUsage == "High") {
+                            it.matchingOccurrences++
+                        }
                     }
                 }
 
                 //2. connectivity rule
-                insightTypeOccurrencesMap[InsightType.CONNECTIVITY]?.let {
-                    it.totalFailures++
+                if (closestSnapshot.connectivity != "UNKNOWN") {
+                    insightTypeOccurrencesMap[Pair(InsightType.CONNECTIVITY, timeBucket)]?.let {
+                        it.totalFailures++
 
-                    if (closestSnapshot.connectivity == "None") {
-                        it.matchingOccurrences++
+                        if (closestSnapshot.connectivity == "None") {
+                            it.matchingOccurrences++
+                        }
                     }
                 }
 
-                //sleep rule - no sleep api intergrated just yet
-                insightTypeOccurrencesMap[InsightType.SLEEP]?.let {
-                    it.totalFailures++
-                    if(closestSnapshot.sleep < 5) {
-                        it.matchingOccurrences++
+                //whether signal
+                if (closestSnapshot.weather != "UNKNOWN") {
+                    insightTypeOccurrencesMap[Pair(InsightType.WEATHER, timeBucket)]?.let {
+                        it.totalFailures++
+                        if (closestSnapshot.weather == "Rainy") {
+                            it.matchingOccurrences++
+                        }
+                    }
+                }
+
+                //sleep rule - no sleep api integrated just yet
+                if (closestSnapshot.sleep in 1..18) {
+                    insightTypeOccurrencesMap[Pair(InsightType.SLEEP, timeBucket)]?.let {
+                        it.totalFailures++
+                        if (closestSnapshot.sleep < 5) {
+                            it.matchingOccurrences++
+                        }
                     }
                 }
             }
         }
 
         //threshold filter: only save when the insight is relevant(occured atleast 3 times and frequency is above 60%)
-
-        insightTypeOccurrencesMap.forEach {( insightType, occurences) ->
+        insightTypeOccurrencesMap.forEach {( key, occurences) -> val (type,timeBucket) = key
             //if occured more than 3 times get the frequency it ocurred for
             if(occurences.totalFailures >= 3){
                 val frequency =   occurences.matchingOccurrences / occurences.totalFailures.toFloat()
                 if(frequency >= 0.6f){
-                    val message = createMessageForInsightType(insightType)
-                    createUniqueInsight(user.id, message, insightType)
+                    val message = createMessageForInsightTypeWithTime(type,timeBucket)
+                    createUniqueInsight(user.id, message, type)
                 }
             }
 
         }
 
-
-        // Rule 1: High Phone Usage before Failure
         val negativeCheckins = checkins.filter { !it.didStudy }
         negativeCheckins.forEach { checkin ->
             val closestSnapshot = rawSnapshots.minByOrNull { abs(it.timestamp - checkin.timestamp) }
@@ -243,6 +265,18 @@ class GenerateInsightsUseCase(
             return failureTimestamps;
     }
 
+    private fun getTimeBucket(timeStamp: Long) : TimeBuckets {
+        val date = Calendar.getInstance().apply { timeInMillis = timeStamp }
+        val hour = date.get(Calendar.HOUR_OF_DAY)
+
+        return when(hour){
+            in 5..11 -> TimeBuckets.MORNING
+            in 12..17 -> TimeBuckets.AFTERNOON
+            in 18..22 -> TimeBuckets.EVENING
+            else -> TimeBuckets.NIGHT
+        }
+    }
+
     private fun getDayOfWeekInt(date: Calendar): Int {
         val  dayOfWeekInt = when (date.get(Calendar.DAY_OF_WEEK)) {
             Calendar.MONDAY -> 1
@@ -262,5 +296,15 @@ class GenerateInsightsUseCase(
         InsightType.SLEEP -> "You tend to miss study sessions on days of less than 6 hours of sleep."
         InsightType.CONNECTIVITY -> "Days with no internet connectivity often leads to study delays."
         InsightType.WEATHER -> "Certain whether conditions seems to affect your ability to initiate study sessions"
+    }
+
+    private fun createMessageForInsightTypeWithTime(insightType: InsightType, timeBucket: TimeBuckets): String {
+        val timeLabel = timeBucket.label
+        return when (insightType) {
+            InsightType.PHONE_USAGE -> "You tend to miss study sessions after high phone usage over 1 hour before scheduled study sessions in the $timeLabel."
+            InsightType.SLEEP -> "You tend to miss study sessions in the $timeLabel  on days of less than 6 hours of sleep "
+            InsightType.CONNECTIVITY -> "In the $timeLabel, on days with no internet connectivity often leads to study delays."
+            InsightType.WEATHER -> "A ${insightType.name.lowercase()} weather seems to affect your ability to initiate study sessions in the $timeLabel."
+        }
     }
 }
