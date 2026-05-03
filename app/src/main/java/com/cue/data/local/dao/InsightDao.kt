@@ -4,12 +4,13 @@ import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
+import androidx.room.Upsert
 import com.cue.data.local.entity.InsightEntity
 
 @Dao
 interface InsightDao {
 
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    @Upsert
     suspend fun insertInsight(insight: InsightEntity) : Long
 
     @Query("SELECT * FROM Insight WHERE user_id = :userId")

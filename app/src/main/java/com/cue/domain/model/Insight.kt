@@ -13,5 +13,6 @@ data class Insight(
     val userId: Long,
     val message: String,
     val type: InsightType,
-    val timestamp: Long
+    val timestamp: Long,
+    val confidenceScore: Float = 0.0 //Added confidence score field
 )

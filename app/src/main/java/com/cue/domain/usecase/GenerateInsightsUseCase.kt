@@ -132,12 +132,26 @@ class GenerateInsightsUseCase(
             }
         }
 
+        //
+
         //threshold filter: only save when the insight is relevant(occured atleast 3 times and frequency is above 60%)
+        //confidence scoring
+        // formula: cs = (frequency * 0.5) + (occurencWeight * 0.3) + (consistency * 0.2)
+        //          occurenceWeight = min(totalOccurences/10,1.0)
+        //          consistency = if frequency > 0.8 then 1.0 else 0.5
         insightTypeOccurrencesMap.forEach {( key, occurences) -> val (type,timeBucket) = key
             //if occured more than 3 times get the frequency it ocurred for
             if(occurences.totalFailures >= 3){
                 val frequency =   occurences.matchingOccurrences / occurences.totalFailures.toFloat()
                 if(frequency >= 0.6f){
+                    // occurence weight : more data = more weight
+                    val occurenceWeight = minOf(occurences.totalFailures / 10f, 1.0f)
+
+                    //consistency : higher frequency = higher confidence
+                    val consistency = if (frequency > 0.8f) 1.0f else 0.5f
+
+                    val cs = (frequency * 0.5f) + (occurenceWeight * 0.3f) + (consistency * 0.2f)
+
                     val message = createMessageForInsightTypeWithTime(type,timeBucket)
                     createUniqueInsight(user.id, message, type)
                 }
@@ -148,7 +162,8 @@ class GenerateInsightsUseCase(
         val negativeCheckins = checkins.filter { !it.didStudy }
         negativeCheckins.forEach { checkin ->
             val closestSnapshot = rawSnapshots.minByOrNull { abs(it.timestamp - checkin.timestamp) }
-            applyRules(user.id, closestSnapshot)
+            val timeBucket = getTimeBucket(checkin.timestamp)
+            applyRules(user.id, closestSnapshot,timeBucket)
         }
         
         // Silent Failure Detection
@@ -183,19 +198,20 @@ class GenerateInsightsUseCase(
                 }
                 
                 ghostSnapshot?.let {
-                    applyRules(userId, it)
+                    val timeBucket = getTimeBucket(it.timestamp)
+                    applyRules(userId, it, timeBucket)
                 }
             }
         }
     }
 
-    private suspend fun applyRules(userId: Long, snapshot: com.cue.domain.model.ContextSnapshot?) {
+    private suspend fun applyRules(userId: Long, snapshot: com.cue.domain.model.ContextSnapshot?, timeBucket: TimeBuckets) {
         if (snapshot == null) return
 
         if (snapshot.phoneUsage == "High") {
             createUniqueInsight(
                 userId,
-                createMessageForInsightType(InsightType.PHONE_USAGE),
+                createMessageForInsightTypeWithTime(InsightType.PHONE_USAGE, timeBucket),
                 InsightType.PHONE_USAGE
             )
         }
@@ -203,7 +219,7 @@ class GenerateInsightsUseCase(
         if (snapshot.sleep < 6) {
             createUniqueInsight(
                 userId,
-                createMessageForInsightType(InsightType.SLEEP),
+                createMessageForInsightTypeWithTime(InsightType.SLEEP,timeBucket),
                 InsightType.SLEEP
             )
         }
@@ -211,12 +227,39 @@ class GenerateInsightsUseCase(
         if (snapshot.connectivity == "None") {
             createUniqueInsight(
                 userId,
-                createMessageForInsightType(InsightType.CONNECTIVITY),
+                createMessageForInsightTypeWithTime(InsightType.CONNECTIVITY,timeBucket),
                 InsightType.CONNECTIVITY
             )
         }
     }
 
+    private suspend fun createOrUpdateInsight(userId: Long, message: String, type: InsightType, confidence: Float) {
+        val existing = insightRepository.getUserInsights(userId)
+        val existingInsight = existing?.find { it.type == type }
+
+        if (existingInsight == null) {
+            // new pattern found
+            // Create a new insight
+            insightRepository.insertInsight(
+                Insight(
+                    userId = userId,
+                    message = message,
+                    type = type,
+                    timestamp = System.currentTimeMillis(),
+                    confidenceScore = confidence
+
+                )
+            )
+        } else if (confidence > existingInsight.confidenceScore ){
+            //update the confidence of the insight
+            insightRepository.insertInsight(
+                existingInsight.copy(
+                    timestamp = System.currentTimeMillis(),
+                    confidenceScore = confidence
+                )
+            )
+        }
+    }
     private suspend fun createUniqueInsight(userId: Long, message: String, type: InsightType) {
         val existing = insightRepository.getUserInsights(userId)
         if (existing!!.none { it.type == type }) {
