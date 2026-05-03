@@ -30,6 +30,12 @@ enum class TimeBuckets(val label:String)
     NIGHT("Night")
 }
 
+enum class MultiSignalRule(val primaryType: InsightType) {
+    PHONE_USAGE_AND_SLEEP(InsightType.PHONE_USAGE),
+    PHONE_USAGE_AND_CONNECTIVITY(InsightType.PHONE_USAGE),
+    SLEEP_AND_CONNECTIVITY(InsightType.SLEEP)
+}
+
 
 class GenerateInsightsUseCase(
     private val userRepository: UserRepository,
@@ -84,6 +90,14 @@ class GenerateInsightsUseCase(
                 }
             }
 
+        val multiSignalOccurrencesMap =
+            mutableMapOf<Pair<MultiSignalRule, TimeBuckets>, PatternOccurences>().apply {
+                MultiSignalRule.entries.forEach { rule ->
+                    TimeBuckets.entries.forEach { bucket ->
+                        put(Pair(rule, bucket), PatternOccurences())
+                    }
+                }
+            }
 
         // analysis loop, relate failures with context
         failureTimestamps.forEach { timestamp ->
@@ -94,22 +108,29 @@ class GenerateInsightsUseCase(
             // 1. Phone usage rule
             //count total failures of the phone usage insight
             if (closestSnapshot != null) {
-                if (closestSnapshot.phoneUsage != "UNKNOWN") {
+                val hasPhoneUsage = closestSnapshot.phoneUsage != "UNKNOWN"
+                val hasConnectivity = closestSnapshot.connectivity != "UNKNOWN"
+                val hasSleep = closestSnapshot.sleep in 1..18
+                val phoneUsageMatched = closestSnapshot.phoneUsage == "High"
+                val connectivityMatched = closestSnapshot.connectivity == "None"
+                val sleepMatched = closestSnapshot.sleep < 5
+
+                if (hasPhoneUsage) {
                     insightTypeOccurrencesMap[Pair(InsightType.PHONE_USAGE, timeBucket)]?.let {
                         it.totalFailures++
 
-                        if (closestSnapshot.phoneUsage == "High") {
+                        if (phoneUsageMatched) {
                             it.matchingOccurrences++
                         }
                     }
                 }
 
                 //2. connectivity rule
-                if (closestSnapshot.connectivity != "UNKNOWN") {
+                if (hasConnectivity) {
                     insightTypeOccurrencesMap[Pair(InsightType.CONNECTIVITY, timeBucket)]?.let {
                         it.totalFailures++
 
-                        if (closestSnapshot.connectivity == "None") {
+                        if (connectivityMatched) {
                             it.matchingOccurrences++
                         }
                     }
@@ -126,14 +147,30 @@ class GenerateInsightsUseCase(
                 }
 
                 //sleep rule - no sleep api integrated just yet
-                if (closestSnapshot.sleep in 1..18) {
+                if (hasSleep) {
                     insightTypeOccurrencesMap[Pair(InsightType.SLEEP, timeBucket)]?.let {
                         it.totalFailures++
-                        if (closestSnapshot.sleep < 5) {
+                        if (sleepMatched) {
                             it.matchingOccurrences++
                         }
                     }
                 }
+
+                updateMultiSignalOccurrences(
+                    occurrences = multiSignalOccurrencesMap[Pair(MultiSignalRule.PHONE_USAGE_AND_SLEEP, timeBucket)],
+                    hasAllSignals = hasPhoneUsage && hasSleep,
+                    allSignalsMatch = phoneUsageMatched && sleepMatched
+                )
+                updateMultiSignalOccurrences(
+                    occurrences = multiSignalOccurrencesMap[Pair(MultiSignalRule.PHONE_USAGE_AND_CONNECTIVITY, timeBucket)],
+                    hasAllSignals = hasPhoneUsage && hasConnectivity,
+                    allSignalsMatch = phoneUsageMatched && connectivityMatched
+                )
+                updateMultiSignalOccurrences(
+                    occurrences = multiSignalOccurrencesMap[Pair(MultiSignalRule.SLEEP_AND_CONNECTIVITY, timeBucket)],
+                    hasAllSignals = hasSleep && hasConnectivity,
+                    allSignalsMatch = sleepMatched && connectivityMatched
+                )
             }
         }
 
@@ -168,6 +205,31 @@ class GenerateInsightsUseCase(
                 }
             }
 
+        }
+
+        multiSignalOccurrencesMap.forEach { (key, occurences) ->
+            val (rule, timeBucket) = key
+            if (occurences.totalFailures >= 3) {
+                val frequency = occurences.matchingOccurrences / occurences.totalFailures.toFloat()
+                if (frequency >= 0.6f) {
+                    val occurenceWeight = minOf(occurences.totalFailures / 10f, 1.0f)
+                    val consistency = if (frequency > 0.8f) 1.0f else 0.5f
+                    val cs = (frequency * 0.5f) + (occurenceWeight * 0.3f) + (consistency * 0.2f)
+
+                    if (cs >= 0.6f) {
+                        val message = createMessageForMultiSignalRule(rule, timeBucket)
+                        val priorityScore = cs * getMultiSignalImpactWeight(rule)
+                        insightCandidates.add(
+                            InsightCandidate(
+                                type = rule.primaryType,
+                                message = message,
+                                confidenceScore = cs,
+                                priorityScore = priorityScore
+                            )
+                        )
+                    }
+                }
+            }
         }
 
         //sort the insight candidates by priority score and take the top 3
@@ -226,6 +288,19 @@ class GenerateInsightsUseCase(
                     confidenceScore = confidence
                 )
             )
+        }
+    }
+
+    private fun updateMultiSignalOccurrences(
+        occurrences: PatternOccurences?,
+        hasAllSignals: Boolean,
+        allSignalsMatch: Boolean
+    ) {
+        if (!hasAllSignals || occurrences == null) return
+
+        occurrences.totalFailures++
+        if (allSignalsMatch) {
+            occurrences.matchingOccurrences++
         }
     }
     private fun getSilentFailureTimeStamps(
@@ -297,6 +372,14 @@ class GenerateInsightsUseCase(
         }
     }
 
+    private fun getMultiSignalImpactWeight(rule: MultiSignalRule): Float {
+        return when(rule) {
+            MultiSignalRule.PHONE_USAGE_AND_SLEEP -> 1.6f
+            MultiSignalRule.PHONE_USAGE_AND_CONNECTIVITY -> 1.4f
+            MultiSignalRule.SLEEP_AND_CONNECTIVITY -> 1.3f
+        }
+    }
+
     companion object {
         private const val MAX_SNAPSHOT_CORRELATION_WINDOW_MS = 3 * 60 * 60 * 1000L
     }
@@ -315,6 +398,18 @@ class GenerateInsightsUseCase(
             InsightType.SLEEP -> "You tend to miss study sessions in the $timeLabel  on days of less than 6 hours of sleep "
             InsightType.CONNECTIVITY -> "In the $timeLabel, on days with no internet connectivity often leads to study delays."
             InsightType.WEATHER -> "A ${insightType.name.lowercase()} weather seems to affect your ability to initiate study sessions in the $timeLabel."
+        }
+    }
+
+    private fun createMessageForMultiSignalRule(rule: MultiSignalRule, timeBucket: TimeBuckets): String {
+        val timeLabel = timeBucket.label
+        return when(rule) {
+            MultiSignalRule.PHONE_USAGE_AND_SLEEP ->
+                "In the $timeLabel, missed study sessions often follow both high phone usage and less than 5 hours of sleep."
+            MultiSignalRule.PHONE_USAGE_AND_CONNECTIVITY ->
+                "In the $timeLabel, missed study sessions often follow both high phone usage and no internet connectivity."
+            MultiSignalRule.SLEEP_AND_CONNECTIVITY ->
+                "In the $timeLabel, missed study sessions often follow both less than 5 hours of sleep and no internet connectivity."
         }
     }
 }

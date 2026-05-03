@@ -191,12 +191,35 @@ class GenerateInsightsUseCaseTest {
 
         fixture.useCase()
 
+        assertEquals(3, fixture.insightRepository.inserted.size)
+        assertInsertedMessageContains(fixture.insightRepository, "both high phone usage and less than 5 hours of sleep")
+        assertInsertedMessageContains(fixture.insightRepository, "both high phone usage and no internet connectivity")
+        assertInsertedMessageContains(fixture.insightRepository, "high phone usage over 1 hour")
+    }
+
+    @Test
+    fun `two signal pattern creates explainable combined insight`() = runTest {
+        val failures = failureSeries(hour = 20, count = 3)
+        val fixture = fixture(
+            checkIns = failures.map { DailyCheckIn(timestamp = it, didStudy = false) },
+            snapshots = failures.map {
+                snapshot(
+                    timestamp = it,
+                    phoneUsage = "High",
+                    sleep = 4
+                )
+            }
+        )
+
+        fixture.useCase()
+
         assertInsertedTypes(
             fixture.insightRepository,
             InsightType.PHONE_USAGE,
-            InsightType.SLEEP,
-            InsightType.CONNECTIVITY
+            InsightType.PHONE_USAGE,
+            InsightType.SLEEP
         )
+        assertInsertedMessageContains(fixture.insightRepository, "both high phone usage and less than 5 hours of sleep")
     }
 
     @Test
