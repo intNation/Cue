@@ -59,4 +59,15 @@ object CueDatabaseMigrations {
             db.execSQL("ALTER TABLE StudyLocation_new RENAME TO StudyLocation")
         }
     }
+
+    val MIGRATION_7_8 = object : Migration(7, 8) {
+        override fun migrate(db: SupportSQLiteDatabase) {
+            db.execSQL(
+                """
+                ALTER TABLE Insight
+                ADD COLUMN confidence_score REAL NOT NULL DEFAULT 0.0
+                """.trimIndent()
+            )
+        }
+    }
 }

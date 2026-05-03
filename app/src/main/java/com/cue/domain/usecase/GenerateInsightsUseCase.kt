@@ -1,10 +1,7 @@
 package com.cue.domain.usecase
 
-import com.cue.context.contracts.WhetherSignal
-import com.cue.domain.model.ContextSnapshot
 import com.cue.domain.model.Insight
 import com.cue.domain.model.InsightType
-import com.cue.domain.model.SessionStatus
 import com.cue.domain.repository.ContextSnapShotRepository
 import com.cue.domain.repository.DailyCheckinRepository
 import com.cue.domain.repository.InsightRepository
@@ -75,7 +72,6 @@ class GenerateInsightsUseCase(
         failureTimestamps.addAll(checkins.filter { !it.didStudy }.map { it.timestamp })
 
         //add silent failures to the list
-
         failureTimestamps.addAll(getSilentFailureTimeStamps(user.weeklySchedule, cleanedSessions))
 
         //initialize the insight type x occurrences map
@@ -91,7 +87,9 @@ class GenerateInsightsUseCase(
 
         // analysis loop, relate failures with context
         failureTimestamps.forEach { timestamp ->
-            val closestSnapshot = rawSnapshots.minByOrNull { abs(it.timestamp - timestamp) }
+            val closestSnapshot = rawSnapshots
+                .minByOrNull { abs(it.timestamp - timestamp) }
+                ?.takeIf { abs(it.timestamp - timestamp) <= MAX_SNAPSHOT_CORRELATION_WINDOW_MS }
             val timeBucket = getTimeBucket(timestamp)
             // 1. Phone usage rule
             //count total failures of the phone usage insight
@@ -181,75 +179,7 @@ class GenerateInsightsUseCase(
             createOrUpdateInsight(user.id, it.message, it.type, it.confidenceScore)
         }
 
-        // Silent Failure Detection
-        detectSilentFailures(user.id, user.weeklySchedule, rawSessions, rawSnapshots)
-    }
 
-    private suspend fun detectSilentFailures(
-        userId: Long,
-        schedule: List<com.cue.domain.model.DaySchedule>,
-        sessions: List<com.cue.domain.model.StudySession>,
-        snapshots: List<com.cue.domain.model.ContextSnapshot>,
-
-    ) {
-        // Look at the last 7 days
-        val now = Calendar.getInstance()
-        for (i in 0 until 7) {
-            val date = Calendar.getInstance().apply { add(Calendar.DAY_OF_YEAR, -i) }
-            val dayOfWeek = getDayOfWeekInt(date)
-
-            val scheduledDay = schedule.find { it.dayOfWeek == dayOfWeek } ?: continue
-            
-            // If we had a scheduled session but no study session was started that day
-            val sessionsToday = sessions.filter { 
-                val sessionDate = Calendar.getInstance().apply { timeInMillis = it.startTime }
-                sessionDate.get(Calendar.DAY_OF_YEAR) == date.get(Calendar.DAY_OF_YEAR)
-            }
-
-            if (sessionsToday.isEmpty()) {
-                // Find ghost snapshot for this day
-                val ghostSnapshot = snapshots.find {
-                    val snapDate = Calendar.getInstance().apply { timeInMillis = it.timestamp }
-                    snapDate.get(Calendar.DAY_OF_YEAR) == date.get(Calendar.DAY_OF_YEAR) && it.sessionId == null
-                }
-                
-                ghostSnapshot?.let {
-                    val timeBucket = getTimeBucket(it.timestamp)
-                    applyRules(userId, it, timeBucket)
-                }
-            }
-        }
-    }
-
-    private suspend fun applyRules(userId: Long, snapshot: com.cue.domain.model.ContextSnapshot?, timeBucket: TimeBuckets) {
-        if (snapshot == null) return
-
-        if (snapshot.phoneUsage == "High") {
-            createUniqueInsight(
-                userId,
-                createMessageForInsightTypeWithTime(InsightType.PHONE_USAGE, timeBucket),
-                InsightType.PHONE_USAGE
-
-            )
-        }
-        
-        if (snapshot.sleep < 6) {
-            createUniqueInsight(
-                userId,
-                createMessageForInsightTypeWithTime(InsightType.SLEEP,timeBucket),
-                InsightType.SLEEP
-
-            )
-        }
-
-        if (snapshot.connectivity == "None") {
-            createUniqueInsight(
-                userId,
-                createMessageForInsightTypeWithTime(InsightType.CONNECTIVITY,timeBucket),
-                InsightType.CONNECTIVITY
-
-            )
-        }
     }
 
     // modify logic to prevent insight overwriting, but instead everytime a pattern meets a threshold: (0.6 confidence),
@@ -259,7 +189,7 @@ class GenerateInsightsUseCase(
 
     private suspend fun createOrUpdateInsight(userId: Long, message: String, type: InsightType, confidence: Float) {
         val existing = insightRepository.getUserInsights(userId)
-        val existingInsight = existing?.find { it.type == type }
+        val existingInsight = existing?.find { it.type == type && it.message == message }
 
         if (existingInsight == null && confidence >= 0.6f) {
             // new pattern found
@@ -289,7 +219,6 @@ class GenerateInsightsUseCase(
             //create a new log of the same insight with updated confidence score only if it was not created 3 days ago
             insightRepository.insertInsight(
                 Insight(
-                    id = existingInsight.id,
                     userId = userId,
                     message = message,
                     type = type,
@@ -299,20 +228,6 @@ class GenerateInsightsUseCase(
             )
         }
     }
-    private suspend fun createUniqueInsight(userId: Long, message: String, type: InsightType) {
-        val existing = insightRepository.getUserInsights(userId)
-        if (existing!!.none { it.type == type }) {
-            insightRepository.insertInsight(
-                Insight(
-                    userId = userId,
-                    message = message,
-                    type = type,
-                    timestamp = System.currentTimeMillis(),
-                )
-            )
-        }
-    }
-
     private fun getSilentFailureTimeStamps(
         schedule: List<com.cue.domain.model.DaySchedule>,
         sessions: List<com.cue.domain.model.StudySession>
@@ -354,7 +269,7 @@ class GenerateInsightsUseCase(
         return when(hour){
             in 5..11 -> TimeBuckets.MORNING
             in 12..17 -> TimeBuckets.AFTERNOON
-            in 18..22 -> TimeBuckets.EVENING
+            in 18..23 -> TimeBuckets.EVENING
             else -> TimeBuckets.NIGHT
         }
     }
@@ -380,6 +295,10 @@ class GenerateInsightsUseCase(
             InsightType.CONNECTIVITY -> 1.0f
             InsightType.WEATHER -> 0.8f
         }
+    }
+
+    companion object {
+        private const val MAX_SNAPSHOT_CORRELATION_WINDOW_MS = 3 * 60 * 60 * 1000L
     }
 
     private  fun createMessageForInsightType(insightType: InsightType): String = when(insightType) {

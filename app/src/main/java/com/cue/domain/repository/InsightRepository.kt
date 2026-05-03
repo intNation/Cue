@@ -1,6 +1,5 @@
 package com.cue.domain.repository
 
-import com.cue.data.local.entity.InsightEntity
 import com.cue.domain.model.Insight
 
 interface InsightRepository{

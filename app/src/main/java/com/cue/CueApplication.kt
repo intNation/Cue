@@ -17,7 +17,10 @@ class CueApplication : Application() {
             CueDatabase::class.java,
             "cue.db"
         )
-        .addMigrations(CueDatabaseMigrations.MIGRATION_6_7)
+        .addMigrations(
+            CueDatabaseMigrations.MIGRATION_6_7,
+            CueDatabaseMigrations.MIGRATION_7_8
+        )
         .build()
     }
 }
