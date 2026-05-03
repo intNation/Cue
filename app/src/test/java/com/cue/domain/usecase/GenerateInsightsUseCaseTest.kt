@@ -23,8 +23,8 @@ import java.util.Calendar
 class GenerateInsightsUseCaseTest {
 
     @Test
-    fun `explicit failed check-in with high phone usage creates phone usage insight`() = runTest {
-        val timestamp = todayAt(hour = 20)
+    fun `one failed check-in does not create insight because V4 requires repeated patterns`() = runTest {
+        val timestamp = dayOffsetAt(daysAgo = 1, hour = 20)
         val fixture = fixture(
             checkIns = listOf(DailyCheckIn(timestamp = timestamp, didStudy = false)),
             snapshots = listOf(snapshot(timestamp = timestamp, phoneUsage = "High"))
@@ -32,51 +32,183 @@ class GenerateInsightsUseCaseTest {
 
         fixture.useCase()
 
-        assertInsertedTypes(fixture.insightRepository, InsightType.PHONE_USAGE)
-        assertInsertedMessageContains(fixture.insightRepository, "high phone usage")
+        assertTrue(fixture.insightRepository.inserted.isEmpty())
     }
 
     @Test
-    fun `explicit failed check-in with poor sleep creates sleep insight`() = runTest {
-        val timestamp = todayAt(hour = 20)
+    fun `three repeated high phone usage failures create phone usage insight`() = runTest {
+        val failures = failureSeries(hour = 20, count = 3)
         val fixture = fixture(
-            checkIns = listOf(DailyCheckIn(timestamp = timestamp, didStudy = false)),
-            snapshots = listOf(snapshot(timestamp = timestamp, sleep = 4))
+            checkIns = failures.map { DailyCheckIn(timestamp = it, didStudy = false) },
+            snapshots = failures.map { snapshot(timestamp = it, phoneUsage = "High") }
+        )
+
+        fixture.useCase()
+
+        assertInsertedTypes(fixture.insightRepository, InsightType.PHONE_USAGE)
+        assertInsertedMessageContains(fixture.insightRepository, "high phone usage")
+        assertTrue(fixture.insightRepository.inserted.single().confidenceScore >= 0.6f)
+    }
+
+    @Test
+    fun `pattern below sixty percent frequency is filtered out`() = runTest {
+        val failures = failureSeries(hour = 20, count = 5)
+        val snapshots = failures.mapIndexed { index, timestamp ->
+            snapshot(
+                timestamp = timestamp,
+                phoneUsage = if (index < 2) "High" else "Low"
+            )
+        }
+        val fixture = fixture(
+            checkIns = failures.map { DailyCheckIn(timestamp = it, didStudy = false) },
+            snapshots = snapshots
+        )
+
+        fixture.useCase()
+
+        assertTrue(fixture.insightRepository.inserted.isEmpty())
+    }
+
+    @Test
+    fun `unknown signal values are ignored for occurrence counting`() = runTest {
+        val failures = failureSeries(hour = 20, count = 3)
+        val fixture = fixture(
+            checkIns = failures.map { DailyCheckIn(timestamp = it, didStudy = false) },
+            snapshots = failures.map { snapshot(timestamp = it, phoneUsage = "UNKNOWN") }
+        )
+
+        fixture.useCase()
+
+        assertTrue(fixture.insightRepository.inserted.isEmpty())
+    }
+
+    @Test
+    fun `snapshots outside correlation window are ignored`() = runTest {
+        val failures = failureSeries(hour = 20, count = 3)
+        val fixture = fixture(
+            checkIns = failures.map { DailyCheckIn(timestamp = it, didStudy = false) },
+            snapshots = failures.map {
+                snapshot(timestamp = it - 4 * 60 * 60 * 1000L, phoneUsage = "High")
+            }
+        )
+
+        fixture.useCase()
+
+        assertTrue(fixture.insightRepository.inserted.isEmpty())
+    }
+
+    @Test
+    fun `time bucket is included in generated message`() = runTest {
+        val failures = failureSeries(hour = 9, count = 3)
+        val fixture = fixture(
+            checkIns = failures.map { DailyCheckIn(timestamp = it, didStudy = false) },
+            snapshots = failures.map { snapshot(timestamp = it, sleep = 4) }
         )
 
         fixture.useCase()
 
         assertInsertedTypes(fixture.insightRepository, InsightType.SLEEP)
-        assertInsertedMessageContains(fixture.insightRepository, "poor sleep")
+        assertInsertedMessageContains(fixture.insightRepository, "Morning")
     }
 
     @Test
-    fun `explicit failed check-in with no connectivity creates connectivity insight`() = runTest {
-        val timestamp = todayAt(hour = 20)
+    fun `twenty three hundred is treated as evening`() = runTest {
+        val failures = failureSeries(hour = 23, count = 3)
         val fixture = fixture(
-            checkIns = listOf(DailyCheckIn(timestamp = timestamp, didStudy = false)),
-            snapshots = listOf(snapshot(timestamp = timestamp, connectivity = "None"))
+            checkIns = failures.map { DailyCheckIn(timestamp = it, didStudy = false) },
+            snapshots = failures.map { snapshot(timestamp = it, phoneUsage = "High") }
+        )
+
+        fixture.useCase()
+
+        assertInsertedTypes(fixture.insightRepository, InsightType.PHONE_USAGE)
+        assertInsertedMessageContains(fixture.insightRepository, "Evening")
+    }
+
+    @Test
+    fun `silent failures are analyzed through V4 frequency thresholds`() = runTest {
+        val expectedFailureTimes = failureSeries(hour = 18, count = 3)
+        val schedule = expectedFailureTimes.map {
+            DaySchedule(dayOfWeek = cueDayOfWeek(it), startTime = "18:00", endTime = "20:00")
+        }
+        val fixture = fixture(
+            user = User(id = USER_ID, weeklySchedule = schedule),
+            sessions = emptyList(),
+            checkIns = emptyList(),
+            snapshots = expectedFailureTimes.map {
+                snapshot(sessionId = null, timestamp = it, connectivity = "None")
+            }
         )
 
         fixture.useCase()
 
         assertInsertedTypes(fixture.insightRepository, InsightType.CONNECTIVITY)
-        assertInsertedMessageContains(fixture.insightRepository, "internet connectivity")
     }
 
     @Test
-    fun `single failed check-in can create multiple cause insights from same snapshot`() = runTest {
-        val timestamp = todayAt(hour = 20)
+    fun `real sessions prevent scheduled days from counting as silent failures`() = runTest {
+        val expectedFailureTimes = failureSeries(hour = 18, count = 3)
+        val schedule = expectedFailureTimes.map {
+            DaySchedule(dayOfWeek = cueDayOfWeek(it), startTime = "18:00", endTime = "20:00")
+        }
         val fixture = fixture(
-            checkIns = listOf(DailyCheckIn(timestamp = timestamp, didStudy = false)),
-            snapshots = listOf(
-                snapshot(
-                    timestamp = timestamp,
-                    phoneUsage = "High",
-                    sleep = 5,
-                    connectivity = "None"
+            user = User(id = USER_ID, weeklySchedule = schedule),
+            sessions = expectedFailureTimes.mapIndexed { index, timestamp ->
+                StudySession(
+                    id = index + 1L,
+                    startTime = timestamp + 5 * 60 * 1000,
+                    endTime = timestamp + 65 * 60 * 1000,
+                    status = SessionStatus.ENDED,
+                    endType = EndType.MANUAL
                 )
-            )
+            },
+            checkIns = emptyList(),
+            snapshots = expectedFailureTimes.map {
+                snapshot(sessionId = null, timestamp = it, connectivity = "None")
+            }
+        )
+
+        fixture.useCase()
+
+        assertTrue(fixture.insightRepository.inserted.isEmpty())
+    }
+
+    @Test
+    fun `only top three insights are inserted by priority`() = runTest {
+        val failures = failureSeries(hour = 20, count = 3)
+        val fixture = fixture(
+            checkIns = failures.map { DailyCheckIn(timestamp = it, didStudy = false) },
+            snapshots = failures.map {
+                snapshot(
+                    timestamp = it,
+                    phoneUsage = "High",
+                    sleep = 4,
+                    connectivity = "None",
+                    weather = "Rainy"
+                )
+            }
+        )
+
+        fixture.useCase()
+
+        assertEquals(3, fixture.insightRepository.inserted.size)
+        assertInsertedMessageContains(fixture.insightRepository, "both high phone usage and less than 5 hours of sleep")
+        assertInsertedMessageContains(fixture.insightRepository, "both high phone usage and no internet connectivity")
+        assertInsertedMessageContains(fixture.insightRepository, "high phone usage over 1 hour")
+    }
+
+    @Test
+    fun `two signal pattern creates explainable combined insight`() = runTest {
+        val failures = failureSeries(hour = 20, count = 3)
+        val fixture = fixture(
+            checkIns = failures.map { DailyCheckIn(timestamp = it, didStudy = false) },
+            snapshots = failures.map {
+                snapshot(
+                    timestamp = it,
+                    phoneUsage = "High",
+                    sleep = 4
+                )
+            }
         )
 
         fixture.useCase()
@@ -84,121 +216,78 @@ class GenerateInsightsUseCaseTest {
         assertInsertedTypes(
             fixture.insightRepository,
             InsightType.PHONE_USAGE,
-            InsightType.SLEEP,
-            InsightType.CONNECTIVITY
+            InsightType.PHONE_USAGE,
+            InsightType.SLEEP
         )
+        assertInsertedMessageContains(fixture.insightRepository, "both high phone usage and less than 5 hours of sleep")
     }
 
     @Test
-    fun `silent missed scheduled session with ghost snapshot creates insight`() = runTest {
-        val scheduledTime = todayAt(hour = 18)
+    fun `recent matching insight suppresses duplicate history insert`() = runTest {
+        val failures = failureSeries(hour = 20, count = 3)
+        val existing = Insight(
+            id = 44L,
+            userId = USER_ID,
+            message = "You tend to miss study sessions after high phone usage over 1 hour before scheduled study sessions in the Evening.",
+            type = InsightType.PHONE_USAGE,
+            timestamp = System.currentTimeMillis(),
+            confidenceScore = 0.6f
+        )
         val fixture = fixture(
-            user = User(
-                id = USER_ID,
-                weeklySchedule = listOf(
-                    DaySchedule(
-                        dayOfWeek = cueDayOfWeek(scheduledTime),
-                        startTime = "18:00",
-                        endTime = "20:00",
-                        isFlexible = false
-                    )
-                )
-            ),
-            sessions = emptyList(),
-            checkIns = emptyList(),
-            snapshots = listOf(
-                snapshot(
-                    sessionId = null,
-                    timestamp = scheduledTime,
-                    phoneUsage = "High"
-                )
-            )
+            existingInsights = listOf(existing),
+            checkIns = failures.map { DailyCheckIn(timestamp = it, didStudy = false) },
+            snapshots = failures.map { snapshot(timestamp = it, phoneUsage = "High") }
+        )
+
+        fixture.useCase()
+
+        assertTrue(fixture.insightRepository.inserted.isEmpty())
+    }
+
+    @Test
+    fun `older matching insight creates new history row without reusing existing id`() = runTest {
+        val failures = failureSeries(hour = 20, count = 3)
+        val existing = Insight(
+            id = 44L,
+            userId = USER_ID,
+            message = "You tend to miss study sessions after high phone usage over 1 hour before scheduled study sessions in the Evening.",
+            type = InsightType.PHONE_USAGE,
+            timestamp = System.currentTimeMillis() - (4 * 24 * 60 * 60 * 1000L),
+            confidenceScore = 0.6f
+        )
+        val fixture = fixture(
+            existingInsights = listOf(existing),
+            checkIns = failures.map { DailyCheckIn(timestamp = it, didStudy = false) },
+            snapshots = failures.map { snapshot(timestamp = it, phoneUsage = "High") }
         )
 
         fixture.useCase()
 
         assertInsertedTypes(fixture.insightRepository, InsightType.PHONE_USAGE)
+        assertEquals(0L, fixture.insightRepository.inserted.single().id)
     }
 
     @Test
-    fun `silent failure is ignored when a study session exists on scheduled day`() = runTest {
-        val scheduledTime = todayAt(hour = 18)
-        val fixture = fixture(
-            user = User(
-                id = USER_ID,
-                weeklySchedule = listOf(
-                    DaySchedule(
-                        dayOfWeek = cueDayOfWeek(scheduledTime),
-                        startTime = "18:00",
-                        endTime = "20:00",
-                        isFlexible = false
-                    )
-                )
-            ),
-            sessions = listOf(
-                StudySession(
-                    id = 10L,
-                    startTime = todayAt(hour = 18, minute = 5),
-                    endTime = todayAt(hour = 19),
-                    status = SessionStatus.ENDED,
-                    endType = EndType.MANUAL
-                )
-            ),
-            checkIns = emptyList(),
-            snapshots = listOf(
-                snapshot(
-                    sessionId = null,
-                    timestamp = scheduledTime,
-                    phoneUsage = "High",
-                    sleep = 4,
-                    connectivity = "None"
-                )
-            )
-        )
-
-        fixture.useCase()
-
-        assertTrue(fixture.insightRepository.inserted.isEmpty())
-    }
-
-    @Test
-    fun `positive check-ins do not create failure insights`() = runTest {
-        val timestamp = todayAt(hour = 20)
-        val fixture = fixture(
-            checkIns = listOf(DailyCheckIn(timestamp = timestamp, didStudy = true)),
-            snapshots = listOf(
-                snapshot(
-                    timestamp = timestamp,
-                    phoneUsage = "High",
-                    sleep = 4,
-                    connectivity = "None"
-                )
-            )
-        )
-
-        fixture.useCase()
-
-        assertTrue(fixture.insightRepository.inserted.isEmpty())
-    }
-
-    @Test
-    fun `existing insight type is not inserted again`() = runTest {
-        val timestamp = todayAt(hour = 20)
-        val existingPhoneUsageInsight = Insight(
+    fun `same insight type in a different time bucket is inserted as a distinct pattern`() = runTest {
+        val failures = failureSeries(hour = 20, count = 3)
+        val existingMorningInsight = Insight(
+            id = 44L,
             userId = USER_ID,
-            message = "Existing phone usage insight",
+            message = "You tend to miss study sessions after high phone usage over 1 hour before scheduled study sessions in the Morning.",
             type = InsightType.PHONE_USAGE,
-            timestamp = timestamp - 1_000
+            timestamp = System.currentTimeMillis(),
+            confidenceScore = 0.7f
         )
         val fixture = fixture(
-            existingInsights = listOf(existingPhoneUsageInsight),
-            checkIns = listOf(DailyCheckIn(timestamp = timestamp, didStudy = false)),
-            snapshots = listOf(snapshot(timestamp = timestamp, phoneUsage = "High"))
+            existingInsights = listOf(existingMorningInsight),
+            checkIns = failures.map { DailyCheckIn(timestamp = it, didStudy = false) },
+            snapshots = failures.map { snapshot(timestamp = it, phoneUsage = "High") }
         )
 
         fixture.useCase()
 
-        assertTrue(fixture.insightRepository.inserted.isEmpty())
+        assertInsertedTypes(fixture.insightRepository, InsightType.PHONE_USAGE)
+        assertInsertedMessageContains(fixture.insightRepository, "Evening")
     }
 
     @Test
@@ -264,8 +353,13 @@ class GenerateInsightsUseCaseTest {
         timestamp = timestamp
     )
 
-    private fun todayAt(hour: Int, minute: Int = 0): Long {
+    private fun failureSeries(hour: Int, count: Int): List<Long> {
+        return (1..count).map { dayOffsetAt(daysAgo = it, hour = hour) }
+    }
+
+    private fun dayOffsetAt(daysAgo: Int, hour: Int, minute: Int = 0): Long {
         return Calendar.getInstance().apply {
+            add(Calendar.DAY_OF_YEAR, -daysAgo)
             set(Calendar.HOUR_OF_DAY, hour)
             set(Calendar.MINUTE, minute)
             set(Calendar.SECOND, 0)
@@ -375,6 +469,10 @@ class GenerateInsightsUseCaseTest {
 
         override suspend fun getInsightById(insightId: Long): Insight? {
             return existing.firstOrNull { it.id == insightId }
+        }
+
+        override suspend fun getInsightByType(userId: Long, insightType: String): List<Insight> {
+            return existing.filter { it.userId == userId && it.type.name == insightType }
         }
     }
 

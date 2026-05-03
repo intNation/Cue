@@ -9,7 +9,7 @@ import com.cue.data.local.entity.InsightEntity
 @Dao
 interface InsightDao {
 
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    @Insert(InsightEntity::class, onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertInsight(insight: InsightEntity) : Long
 
     @Query("SELECT * FROM Insight WHERE user_id = :userId")
@@ -17,5 +17,8 @@ interface InsightDao {
 
     @Query("SELECT * FROM Insight WHERE id = :insightId")
     suspend fun getInsightById(insightId: Long): InsightEntity?
+
+    @Query("SELECT * FROM Insight WHERE user_id = :userId AND type = :insightType")
+    suspend fun getInsightsByType(userId: Long, insightType: String): List<InsightEntity>
 
 }

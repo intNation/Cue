@@ -27,6 +27,9 @@ data class InsightEntity(
     @ColumnInfo(name = "type")
     val type: String,
     @ColumnInfo(name = "timestamp")
-    val timestamp: Long
+    val timestamp: Long,
+
+    @ColumnInfo(name = "confidence_score")
+    val confidenceScore: Float
 
 )
