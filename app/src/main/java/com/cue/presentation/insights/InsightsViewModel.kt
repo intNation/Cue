@@ -38,9 +38,12 @@ class InsightsViewModel(
             
             val user = userRepository.getCurrentUser()
             if (user != null) {
+                //instead of loading all the insights we load the latest one by using latest per type filter
                 val insights = insightRepository.getUserInsights(user.id)
+
+                //get the latest insight
                 _uiState.value = _uiState.value.copy(
-                    insights = insights!!.sortedByDescending { it.timestamp },
+                    insights =  insights!!.groupBy { insight -> insight.type }.map { it.value.maxByOrNull { insight -> insight.timestamp }!!},
                     isLoading = false
                 )
             } else {

@@ -52,7 +52,7 @@ class GenerateInsightsUseCase(
             val durationMS = endTime - startTime
             val durationMins = durationMS / (1000 * 60)
 
-            //fitler 1: ignore sessions with less than 5 minues duration and > 12 hour duration
+            //filter 1: ignore sessions with less than 5 minutes duration and > 12 hour duration
             durationMins in 5..(12 * 60)
 
         }
@@ -134,7 +134,7 @@ class GenerateInsightsUseCase(
 
         //
 
-        //threshold filter: only save when the insight is relevant(occured atleast 3 times and frequency is above 60%)
+        //threshold filter: only save when the insight is relevant(occured at least 3 times and frequency is above 60%)
         //confidence scoring
         // formula: cs = (frequency * 0.5) + (occurencWeight * 0.3) + (consistency * 0.2)
         //          occurenceWeight = min(totalOccurences/10,1.0)
@@ -233,27 +233,35 @@ class GenerateInsightsUseCase(
         }
     }
 
+    // modify logic to prevent insight overwriting, but instead everytime a pattern meets a threshold: (0.6 confidence),
+    // always insert a new row in the Insight table
+    // this will enable us to see how the insight behaved by keeping a "log of it"
+    // this is used for history preservation
+
     private suspend fun createOrUpdateInsight(userId: Long, message: String, type: InsightType, confidence: Float) {
         val existing = insightRepository.getUserInsights(userId)
         val existingInsight = existing?.find { it.type == type }
 
-        if (existingInsight == null) {
+        if (existingInsight == null && confidence >= 0.6f) {
             // new pattern found
-            // Create a new insight
+            // Create a new insight only if the confidence level exceeds the .6 threshold
+                insightRepository.insertInsight(
+                    Insight(
+                        userId = userId,
+                        message = message,
+                        type = type,
+                        timestamp = System.currentTimeMillis(),
+                        confidenceScore = confidence
+                    )
+                )
+        } else if (existingInsight != null && confidence >= existingInsight.confidenceScore && confidence >= 0.6f ){
+            //create a new log of the same insight with updated confidence score
             insightRepository.insertInsight(
                 Insight(
+                    id = existingInsight.id,
                     userId = userId,
                     message = message,
                     type = type,
-                    timestamp = System.currentTimeMillis(),
-                    confidenceScore = confidence
-
-                )
-            )
-        } else if (confidence > existingInsight.confidenceScore ){
-            //update the confidence of the insight
-            insightRepository.insertInsight(
-                existingInsight.copy(
                     timestamp = System.currentTimeMillis(),
                     confidenceScore = confidence
                 )

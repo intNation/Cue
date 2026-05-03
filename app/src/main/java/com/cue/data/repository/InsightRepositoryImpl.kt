@@ -13,6 +13,7 @@ class InsightRepositoryImpl(val dao : InsightDao) : InsightRepository  {
             userId = insight.userId,
             message = insight.message,
             type = insight.type.name,
+            confidenceScore = insight.confidenceScore,
             timestamp = insight.timestamp
         )
 
@@ -25,6 +26,10 @@ class InsightRepositoryImpl(val dao : InsightDao) : InsightRepository  {
 
     override suspend fun getInsightById(insightId: Long): Insight? {
         return dao.getInsightById(insightId)?.toDomain()
+    }
+
+    override suspend fun getInsightByType(userId: Long, insightType: String): List<Insight> {
+        return dao.getInsightsByType(userId, insightType).map { it.toDomain() }
     }
 
 }
