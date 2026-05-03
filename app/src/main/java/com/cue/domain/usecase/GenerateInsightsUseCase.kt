@@ -18,6 +18,13 @@ data class PatternOccurences(
     var matchingOccurrences: Int = 0
 )
 
+data class InsightCandidate(
+    var type: InsightType,
+    var message: String,
+    var confidenceScore: Float = 0.0f,
+    var priorityScore: Float = 0.0f
+)
+
 enum class TimeBuckets(val label:String)
 {
     MORNING("Morning"),
@@ -132,7 +139,8 @@ class GenerateInsightsUseCase(
             }
         }
 
-        //
+        // list of insights that meet the 0.6 confidence score
+        val insightCandidates  = mutableListOf<InsightCandidate>()
 
         //threshold filter: only save when the insight is relevant(occured at least 3 times and frequency is above 60%)
         //confidence scoring
@@ -151,21 +159,28 @@ class GenerateInsightsUseCase(
                     val consistency = if (frequency > 0.8f) 1.0f else 0.5f
 
                     val cs = (frequency * 0.5f) + (occurenceWeight * 0.3f) + (consistency * 0.2f)
-
                     val message = createMessageForInsightTypeWithTime(type,timeBucket)
-                    createUniqueInsight(user.id, message, type)
+                    if(cs >= 0.6f) {
+                        //insight prioritization: calculate priorityScore
+                        val impactWeight = getInsightImpactWeightForType(type)
+                        val priorityScore = cs * impactWeight
+                        insightCandidates.add(InsightCandidate(type, message, cs,priorityScore))
+                    }
+
                 }
             }
 
         }
 
-        val negativeCheckins = checkins.filter { !it.didStudy }
-        negativeCheckins.forEach { checkin ->
-            val closestSnapshot = rawSnapshots.minByOrNull { abs(it.timestamp - checkin.timestamp) }
-            val timeBucket = getTimeBucket(checkin.timestamp)
-            applyRules(user.id, closestSnapshot,timeBucket)
+        //sort the insight candidates by priority score and take the top 3
+        insightCandidates.sortByDescending { it.priorityScore }
+        val top3Insights = insightCandidates.take(3)
+
+        //add the top 3 to the insights table
+        top3Insights.forEach {
+            createOrUpdateInsight(user.id, it.message, it.type, it.confidenceScore)
         }
-        
+
         // Silent Failure Detection
         detectSilentFailures(user.id, user.weeklySchedule, rawSessions, rawSnapshots)
     }
@@ -174,7 +189,8 @@ class GenerateInsightsUseCase(
         userId: Long,
         schedule: List<com.cue.domain.model.DaySchedule>,
         sessions: List<com.cue.domain.model.StudySession>,
-        snapshots: List<com.cue.domain.model.ContextSnapshot>
+        snapshots: List<com.cue.domain.model.ContextSnapshot>,
+
     ) {
         // Look at the last 7 days
         val now = Calendar.getInstance()
@@ -213,6 +229,7 @@ class GenerateInsightsUseCase(
                 userId,
                 createMessageForInsightTypeWithTime(InsightType.PHONE_USAGE, timeBucket),
                 InsightType.PHONE_USAGE
+
             )
         }
         
@@ -221,6 +238,7 @@ class GenerateInsightsUseCase(
                 userId,
                 createMessageForInsightTypeWithTime(InsightType.SLEEP,timeBucket),
                 InsightType.SLEEP
+
             )
         }
 
@@ -229,6 +247,7 @@ class GenerateInsightsUseCase(
                 userId,
                 createMessageForInsightTypeWithTime(InsightType.CONNECTIVITY,timeBucket),
                 InsightType.CONNECTIVITY
+
             )
         }
     }
@@ -288,7 +307,7 @@ class GenerateInsightsUseCase(
                     userId = userId,
                     message = message,
                     type = type,
-                    timestamp = System.currentTimeMillis()
+                    timestamp = System.currentTimeMillis(),
                 )
             )
         }
@@ -352,6 +371,15 @@ class GenerateInsightsUseCase(
             else -> 1
         }
         return dayOfWeekInt
+    }
+
+    private fun getInsightImpactWeightForType (type: InsightType) : Float{
+        return when(type){
+            InsightType.PHONE_USAGE -> 1.5f
+            InsightType.SLEEP -> 1.3f
+            InsightType.CONNECTIVITY -> 1.0f
+            InsightType.WEATHER -> 0.8f
+        }
     }
 
     private  fun createMessageForInsightType(insightType: InsightType): String = when(insightType) {
