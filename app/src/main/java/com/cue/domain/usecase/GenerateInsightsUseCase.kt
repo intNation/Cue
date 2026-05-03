@@ -255,7 +255,19 @@ class GenerateInsightsUseCase(
                     )
                 )
         } else if (existingInsight != null && confidence >= existingInsight.confidenceScore && confidence >= 0.6f ){
-            //create a new log of the same insight with updated confidence score
+
+            //fetch the existing insight history
+            val historyInsights = insightRepository.getInsightByType(userId, type.name)
+            //calculate suppression window to prevent inserting same insight multiple times that was detected already in the past 3 days
+            val threeDaysAgo = System.currentTimeMillis() - (3 * 24 * 60 * 60 * 1000) // 3 days in milliseconds
+            val recentSimilarInsight = historyInsights.find {
+                it.message == message &&
+                it.type == type &&
+                it.timestamp >= threeDaysAgo
+            }
+
+            if(recentSimilarInsight != null) return
+            //create a new log of the same insight with updated confidence score only if it was not created 3 days ago
             insightRepository.insertInsight(
                 Insight(
                     id = existingInsight.id,
