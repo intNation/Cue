@@ -2,6 +2,8 @@ package com.cue.domain.usecase
 
 import com.cue.domain.model.Insight
 import com.cue.domain.model.InsightType
+import com.cue.domain.model.StudySession
+import com.cue.domain.model.ContextSnapshot
 import com.cue.domain.repository.ContextSnapShotRepository
 import com.cue.domain.repository.DailyCheckinRepository
 import com.cue.domain.repository.InsightRepository
@@ -10,6 +12,8 @@ import com.cue.domain.repository.UserRepository
 import java.util.Calendar
 import kotlin.collections.forEach
 import kotlin.math.abs
+import kotlin.ranges.contains
+
 data class PatternOccurences(
     var totalFailures: Int = 0,
     var matchingOccurrences: Int = 0
@@ -20,6 +24,17 @@ data class InsightCandidate(
     var message: String,
     var confidenceScore: Float = 0.0f,
     var priorityScore: Float = 0.0f
+)
+
+private data class SnapshotSignalState(
+    val hasPhoneUsage: Boolean,
+    val hasConnectivity: Boolean,
+    val hasSleep: Boolean,
+    val hasWeather: Boolean,
+    val phoneUsageMatched: Boolean,
+    val connectivityMatched: Boolean,
+    val sleepMatched: Boolean,
+    val weatherMatched: Boolean
 )
 
 enum class TimeBuckets(val label:String)
@@ -51,204 +66,30 @@ class GenerateInsightsUseCase(
         val rawSnapshots = snapshotRepository.getAllSnapshots()
         val rawSessions = sessionRepository.getAllSessions()
 
-        /*
-        Noise Filtering
-         */
+        val cleanedSessions = rawSessions.filter(::isValidSession)
+        val failureTimestamps = buildFailureTimestamps(checkins, user.weeklySchedule, cleanedSessions)
+        val insightTypeOccurrencesMap = createInsightTypeOccurrencesMap()
+        val multiSignalOccurrencesMap = createMultiSignalOccurrencesMap()
 
-        //get the cleaned sessions
-        val cleanedSessions = rawSessions.filter { session ->
-            val startTime = session.startTime
-            val endTime = session.endTime ?: 0L
-            val durationMS = endTime - startTime
-            val durationMins = durationMS / (1000 * 60)
+        analyzeFailures(
+            failureTimestamps = failureTimestamps,
+            snapshots = rawSnapshots,
+            insightTypeOccurrencesMap = insightTypeOccurrencesMap,
+            multiSignalOccurrencesMap = multiSignalOccurrencesMap
+        )
 
-            //filter 1: ignore sessions with less than 5 minutes duration and > 12 hour duration
-            durationMins in 5..(12 * 60)
-
-        }
-
-
-        /**
-         * Occurences + frequency filtering
-         */
-        //get all the timestamps of failed study sessions
-        val failureTimestamps = mutableListOf<Long>()
-
-        //add  all manual failed checkins
-        failureTimestamps.addAll(checkins.filter { !it.didStudy }.map { it.timestamp })
-
-        //add silent failures to the list
-        failureTimestamps.addAll(getSilentFailureTimeStamps(user.weeklySchedule, cleanedSessions))
-
-        //initialize the insight type x occurrences map
-        val insightTypeOccurrencesMap =
-            mutableMapOf<Pair<InsightType, TimeBuckets>, PatternOccurences>().apply {
-                InsightType.entries.forEach { type ->
-                    TimeBuckets.entries.forEach { bucket ->
-                        put(Pair(type, bucket), PatternOccurences())
-                    }
-                }
-            }
-
-        val multiSignalOccurrencesMap =
-            mutableMapOf<Pair<MultiSignalRule, TimeBuckets>, PatternOccurences>().apply {
-                MultiSignalRule.entries.forEach { rule ->
-                    TimeBuckets.entries.forEach { bucket ->
-                        put(Pair(rule, bucket), PatternOccurences())
-                    }
-                }
-            }
-
-        // analysis loop, relate failures with context
-        failureTimestamps.forEach { timestamp ->
-            val closestSnapshot = rawSnapshots
-                .minByOrNull { abs(it.timestamp - timestamp) }
-                ?.takeIf { abs(it.timestamp - timestamp) <= MAX_SNAPSHOT_CORRELATION_WINDOW_MS }
-            val timeBucket = getTimeBucket(timestamp)
-            // 1. Phone usage rule
-            //count total failures of the phone usage insight
-            if (closestSnapshot != null) {
-                val hasPhoneUsage = closestSnapshot.phoneUsage != "UNKNOWN"
-                val hasConnectivity = closestSnapshot.connectivity != "UNKNOWN"
-                val hasSleep = closestSnapshot.sleep in 1..18
-                val phoneUsageMatched = closestSnapshot.phoneUsage == "High"
-                val connectivityMatched = closestSnapshot.connectivity == "None"
-                val sleepMatched = closestSnapshot.sleep < 5
-
-                if (hasPhoneUsage) {
-                    insightTypeOccurrencesMap[Pair(InsightType.PHONE_USAGE, timeBucket)]?.let {
-                        it.totalFailures++
-
-                        if (phoneUsageMatched) {
-                            it.matchingOccurrences++
-                        }
-                    }
-                }
-
-                //2. connectivity rule
-                if (hasConnectivity) {
-                    insightTypeOccurrencesMap[Pair(InsightType.CONNECTIVITY, timeBucket)]?.let {
-                        it.totalFailures++
-
-                        if (connectivityMatched) {
-                            it.matchingOccurrences++
-                        }
-                    }
-                }
-
-                //whether signal
-                if (closestSnapshot.weather != "UNKNOWN") {
-                    insightTypeOccurrencesMap[Pair(InsightType.WEATHER, timeBucket)]?.let {
-                        it.totalFailures++
-                        if (closestSnapshot.weather == "Rainy") {
-                            it.matchingOccurrences++
-                        }
-                    }
-                }
-
-                //sleep rule - no sleep api integrated just yet
-                if (hasSleep) {
-                    insightTypeOccurrencesMap[Pair(InsightType.SLEEP, timeBucket)]?.let {
-                        it.totalFailures++
-                        if (sleepMatched) {
-                            it.matchingOccurrences++
-                        }
-                    }
-                }
-
-                updateMultiSignalOccurrences(
-                    occurrences = multiSignalOccurrencesMap[Pair(MultiSignalRule.PHONE_USAGE_AND_SLEEP, timeBucket)],
-                    hasAllSignals = hasPhoneUsage && hasSleep,
-                    allSignalsMatch = phoneUsageMatched && sleepMatched
-                )
-                updateMultiSignalOccurrences(
-                    occurrences = multiSignalOccurrencesMap[Pair(MultiSignalRule.PHONE_USAGE_AND_CONNECTIVITY, timeBucket)],
-                    hasAllSignals = hasPhoneUsage && hasConnectivity,
-                    allSignalsMatch = phoneUsageMatched && connectivityMatched
-                )
-                updateMultiSignalOccurrences(
-                    occurrences = multiSignalOccurrencesMap[Pair(MultiSignalRule.SLEEP_AND_CONNECTIVITY, timeBucket)],
-                    hasAllSignals = hasSleep && hasConnectivity,
-                    allSignalsMatch = sleepMatched && connectivityMatched
-                )
-            }
-        }
-
-        // list of insights that meet the 0.6 confidence score
-        val insightCandidates  = mutableListOf<InsightCandidate>()
-
-        //threshold filter: only save when the insight is relevant(occured at least 3 times and frequency is above 60%)
-        //confidence scoring
-        // formula: cs = (frequency * 0.5) + (occurencWeight * 0.3) + (consistency * 0.2)
-        //          occurenceWeight = min(totalOccurences/10,1.0)
-        //          consistency = if frequency > 0.8 then 1.0 else 0.5
-        insightTypeOccurrencesMap.forEach {( key, occurences) -> val (type,timeBucket) = key
-            //if occured more than 3 times get the frequency it ocurred for
-            if(occurences.totalFailures >= 3){
-                val frequency =   occurences.matchingOccurrences / occurences.totalFailures.toFloat()
-                if(frequency >= 0.6f){
-                    // occurence weight : more data = more weight
-                    val occurenceWeight = minOf(occurences.totalFailures / 10f, 1.0f)
-
-                    //consistency : higher frequency = higher confidence
-                    val consistency = if (frequency > 0.8f) 1.0f else 0.5f
-
-                    val cs = (frequency * 0.5f) + (occurenceWeight * 0.3f) + (consistency * 0.2f)
-                    val message = createMessageForInsightTypeWithTime(type,timeBucket)
-                    if(cs >= 0.6f) {
-                        //insight prioritization: calculate priorityScore
-                        val impactWeight = getInsightImpactWeightForType(type)
-                        val priorityScore = cs * impactWeight
-                        insightCandidates.add(InsightCandidate(type, message, cs,priorityScore))
-                    }
-
-                }
-            }
-
-        }
-
-        multiSignalOccurrencesMap.forEach { (key, occurences) ->
-            val (rule, timeBucket) = key
-            if (occurences.totalFailures >= 3) {
-                val frequency = occurences.matchingOccurrences / occurences.totalFailures.toFloat()
-                if (frequency >= 0.6f) {
-                    val occurenceWeight = minOf(occurences.totalFailures / 10f, 1.0f)
-                    val consistency = if (frequency > 0.8f) 1.0f else 0.5f
-                    val cs = (frequency * 0.5f) + (occurenceWeight * 0.3f) + (consistency * 0.2f)
-
-                    if (cs >= 0.6f) {
-                        val message = createMessageForMultiSignalRule(rule, timeBucket)
-                        val priorityScore = cs * getMultiSignalImpactWeight(rule)
-                        insightCandidates.add(
-                            InsightCandidate(
-                                type = rule.primaryType,
-                                message = message,
-                                confidenceScore = cs,
-                                priorityScore = priorityScore
-                            )
-                        )
-                    }
-                }
-            }
-        }
-
-        //sort the insight candidates by priority score and take the top 3
-        insightCandidates.sortByDescending { it.priorityScore }
-        val top3Insights = insightCandidates.take(3)
-
-        //add the top 3 to the insights table
-        top3Insights.forEach {
+        buildInsightCandidates(
+            insightTypeOccurrencesMap = insightTypeOccurrencesMap,
+            multiSignalOccurrencesMap = multiSignalOccurrencesMap
+        ).forEach {
             createOrUpdateInsight(user.id, it.message, it.type, it.confidenceScore)
         }
-
-
     }
 
     // modify logic to prevent insight overwriting, but instead everytime a pattern meets a threshold: (0.6 confidence),
     // always insert a new row in the Insight table
     // this will enable us to see how the insight behaved by keeping a "log of it"
     // this is used for history preservation
-
     private suspend fun createOrUpdateInsight(userId: Long, message: String, type: InsightType, confidence: Float) {
         val existing = insightRepository.getUserInsights(userId)
         val existingInsight = existing?.find { it.type == type && it.message == message }
@@ -289,6 +130,220 @@ class GenerateInsightsUseCase(
                 )
             )
         }
+    }
+
+    private fun isValidSession(session: StudySession): Boolean {
+        val endTime = session.endTime ?: 0L
+        val durationMins = (endTime - session.startTime) / (1000 * 60)
+        return durationMins in 5..(12 * 60)
+    }
+
+    private fun buildFailureTimestamps(
+        checkins: List<com.cue.domain.model.DailyCheckIn>,
+        schedule: List<com.cue.domain.model.DaySchedule>,
+        cleanedSessions: List<StudySession>
+    ): List<Long> {
+        return buildList {
+            addAll(checkins.filter { !it.didStudy }.map { it.timestamp })
+            addAll(getSilentFailureTimeStamps(schedule, cleanedSessions))
+        }
+    }
+
+    private fun createInsightTypeOccurrencesMap(): Map<Pair<InsightType, TimeBuckets>, PatternOccurences> {
+        return buildMap {
+            InsightType.entries.forEach { type ->
+                TimeBuckets.entries.forEach { bucket ->
+                    put(Pair(type, bucket), PatternOccurences())
+                }
+            }
+        }
+    }
+
+    private fun createMultiSignalOccurrencesMap(): Map<Pair<MultiSignalRule, TimeBuckets>, PatternOccurences> {
+        return buildMap {
+            MultiSignalRule.entries.forEach { rule ->
+                TimeBuckets.entries.forEach { bucket ->
+                    put(Pair(rule, bucket), PatternOccurences())
+                }
+            }
+        }
+    }
+
+    private fun analyzeFailures(
+        failureTimestamps: List<Long>,
+        snapshots: List<ContextSnapshot>,
+        insightTypeOccurrencesMap: Map<Pair<InsightType, TimeBuckets>, PatternOccurences>,
+        multiSignalOccurrencesMap: Map<Pair<MultiSignalRule, TimeBuckets>, PatternOccurences>
+    ) {
+        failureTimestamps.forEach { timestamp ->
+            analyzeFailure(
+                timestamp = timestamp,
+                snapshots = snapshots,
+                insightTypeOccurrencesMap = insightTypeOccurrencesMap,
+                multiSignalOccurrencesMap = multiSignalOccurrencesMap
+            )
+        }
+    }
+
+    private fun analyzeFailure(
+        timestamp: Long,
+        snapshots: List<ContextSnapshot>,
+        insightTypeOccurrencesMap: Map<Pair<InsightType, TimeBuckets>, PatternOccurences>,
+        multiSignalOccurrencesMap: Map<Pair<MultiSignalRule, TimeBuckets>, PatternOccurences>
+    ) {
+        val closestSnapshot = findClosestSnapshot(timestamp, snapshots) ?: return
+        val timeBucket = getTimeBucket(timestamp)
+        val signalState = buildSignalState(closestSnapshot)
+
+        updateSingleSignalOccurrences(insightTypeOccurrencesMap, timeBucket, signalState)
+        updateMultiSignalOccurrences(multiSignalOccurrencesMap, timeBucket, signalState)
+    }
+
+    private fun findClosestSnapshot(
+        timestamp: Long,
+        snapshots: List<ContextSnapshot>
+    ): ContextSnapshot? {
+        return snapshots
+            .minByOrNull { abs(it.timestamp - timestamp) }
+            ?.takeIf { abs(it.timestamp - timestamp) <= MAX_SNAPSHOT_CORRELATION_WINDOW_MS }
+    }
+
+    private fun buildSignalState(snapshot: ContextSnapshot): SnapshotSignalState {
+        return SnapshotSignalState(
+            hasPhoneUsage = snapshot.phoneUsage != "UNKNOWN",
+            hasConnectivity = snapshot.connectivity != "UNKNOWN",
+            hasSleep = snapshot.sleep in 1..18,
+            hasWeather = snapshot.weather != "UNKNOWN",
+            phoneUsageMatched = snapshot.phoneUsage == "High",
+            connectivityMatched = snapshot.connectivity == "None",
+            sleepMatched = snapshot.sleep < 5,
+            weatherMatched = snapshot.weather == "Rainy"
+        )
+    }
+
+    private fun updateSingleSignalOccurrences(
+        insightTypeOccurrencesMap: Map<Pair<InsightType, TimeBuckets>, PatternOccurences>,
+        timeBucket: TimeBuckets,
+        signalState: SnapshotSignalState
+    ) {
+        incrementOccurrences(
+            occurrences = insightTypeOccurrencesMap[Pair(InsightType.PHONE_USAGE, timeBucket)],
+            hasSignal = signalState.hasPhoneUsage,
+            signalMatched = signalState.phoneUsageMatched
+        )
+        incrementOccurrences(
+            occurrences = insightTypeOccurrencesMap[Pair(InsightType.CONNECTIVITY, timeBucket)],
+            hasSignal = signalState.hasConnectivity,
+            signalMatched = signalState.connectivityMatched
+        )
+        incrementOccurrences(
+            occurrences = insightTypeOccurrencesMap[Pair(InsightType.WEATHER, timeBucket)],
+            hasSignal = signalState.hasWeather,
+            signalMatched = signalState.weatherMatched
+        )
+        incrementOccurrences(
+            occurrences = insightTypeOccurrencesMap[Pair(InsightType.SLEEP, timeBucket)],
+            hasSignal = signalState.hasSleep,
+            signalMatched = signalState.sleepMatched
+        )
+    }
+
+    private fun incrementOccurrences(
+        occurrences: PatternOccurences?,
+        hasSignal: Boolean,
+        signalMatched: Boolean
+    ) {
+        if (!hasSignal || occurrences == null) return
+
+        occurrences.totalFailures++
+        if (signalMatched) {
+            occurrences.matchingOccurrences++
+        }
+    }
+
+    private fun updateMultiSignalOccurrences(
+        multiSignalOccurrencesMap: Map<Pair<MultiSignalRule, TimeBuckets>, PatternOccurences>,
+        timeBucket: TimeBuckets,
+        signalState: SnapshotSignalState
+    ) {
+        updateMultiSignalOccurrences(
+            occurrences = multiSignalOccurrencesMap[Pair(MultiSignalRule.PHONE_USAGE_AND_SLEEP, timeBucket)],
+            hasAllSignals = signalState.hasPhoneUsage && signalState.hasSleep,
+            allSignalsMatch = signalState.phoneUsageMatched && signalState.sleepMatched
+        )
+        updateMultiSignalOccurrences(
+            occurrences = multiSignalOccurrencesMap[Pair(MultiSignalRule.PHONE_USAGE_AND_CONNECTIVITY, timeBucket)],
+            hasAllSignals = signalState.hasPhoneUsage && signalState.hasConnectivity,
+            allSignalsMatch = signalState.phoneUsageMatched && signalState.connectivityMatched
+        )
+        updateMultiSignalOccurrences(
+            occurrences = multiSignalOccurrencesMap[Pair(MultiSignalRule.SLEEP_AND_CONNECTIVITY, timeBucket)],
+            hasAllSignals = signalState.hasSleep && signalState.hasConnectivity,
+            allSignalsMatch = signalState.sleepMatched && signalState.connectivityMatched
+        )
+    }
+
+    private fun buildInsightCandidates(
+        insightTypeOccurrencesMap: Map<Pair<InsightType, TimeBuckets>, PatternOccurences>,
+        multiSignalOccurrencesMap: Map<Pair<MultiSignalRule, TimeBuckets>, PatternOccurences>
+    ): List<InsightCandidate> {
+        val insightCandidates = mutableListOf<InsightCandidate>()
+
+        insightTypeOccurrencesMap.forEach { (key, occurrences) ->
+            val (type, timeBucket) = key
+            createSingleSignalCandidate(type, timeBucket, occurrences)?.let(insightCandidates::add)
+        }
+
+        multiSignalOccurrencesMap.forEach { (key, occurrences) ->
+            val (rule, timeBucket) = key
+            createMultiSignalCandidate(rule, timeBucket, occurrences)?.let(insightCandidates::add)
+        }
+
+        return insightCandidates
+            .sortedByDescending { it.priorityScore }
+            .take(3)
+    }
+
+    private fun createSingleSignalCandidate(
+        type: InsightType,
+        timeBucket: TimeBuckets,
+        occurrences: PatternOccurences
+    ): InsightCandidate? {
+        val confidenceScore = calculateConfidenceScore(occurrences) ?: return null
+        val message = createMessageForInsightTypeWithTime(type, timeBucket)
+        val priorityScore = confidenceScore * getInsightImpactWeightForType(type)
+
+        return InsightCandidate(type, message, confidenceScore, priorityScore)
+    }
+
+    private fun createMultiSignalCandidate(
+        rule: MultiSignalRule,
+        timeBucket: TimeBuckets,
+        occurrences: PatternOccurences
+    ): InsightCandidate? {
+        val confidenceScore = calculateConfidenceScore(occurrences) ?: return null
+        val message = createMessageForMultiSignalRule(rule, timeBucket)
+        val priorityScore = confidenceScore * getMultiSignalImpactWeight(rule)
+
+        return InsightCandidate(
+            type = rule.primaryType,
+            message = message,
+            confidenceScore = confidenceScore,
+            priorityScore = priorityScore
+        )
+    }
+
+    private fun calculateConfidenceScore(occurrences: PatternOccurences): Float? {
+        if (occurrences.totalFailures < 3) return null
+
+        val frequency = occurrences.matchingOccurrences / occurrences.totalFailures.toFloat()
+        if (frequency < 0.6f) return null
+
+        val occurrenceWeight = minOf(occurrences.totalFailures / 10f, 1.0f)
+        val consistency = if (frequency > 0.8f) 1.0f else 0.5f
+        val confidenceScore = (frequency * 0.5f) + (occurrenceWeight * 0.3f) + (consistency * 0.2f)
+
+        return confidenceScore.takeIf { it >= 0.6f }
     }
 
     private fun updateMultiSignalOccurrences(
