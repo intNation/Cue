@@ -66,7 +66,8 @@ class GenerateInsightsUseCase(
         val rawSnapshots = snapshotRepository.getAllSnapshots()
         val rawSessions = sessionRepository.getAllSessions()
 
-        val cleanedSessions = rawSessions.filter(::isValidSession)
+        val isValid = ::isValidSession
+        val cleanedSessions = rawSessions.filter(isValid)
         val failureTimestamps = buildFailureTimestamps(checkins, user.weeklySchedule, cleanedSessions)
         val insightTypeOccurrencesMap = createInsightTypeOccurrencesMap()
         val multiSignalOccurrencesMap = createMultiSignalOccurrencesMap()
@@ -334,13 +335,18 @@ class GenerateInsightsUseCase(
     }
 
     private fun calculateConfidenceScore(occurrences: PatternOccurences): Float? {
-        if (occurrences.totalFailures < 3) return null
+        if (occurrences.totalFailures < 3)
+            return null
 
         val frequency = occurrences.matchingOccurrences / occurrences.totalFailures.toFloat()
-        if (frequency < 0.6f) return null
+        if (frequency < 0.6f)
+            return null
 
         val occurrenceWeight = minOf(occurrences.totalFailures / 10f, 1.0f)
-        val consistency = if (frequency > 0.8f) 1.0f else 0.5f
+        val consistency = if (frequency > 0.8f)
+             1.0f
+        else
+             0.5f
         val confidenceScore = (frequency * 0.5f) + (occurrenceWeight * 0.3f) + (consistency * 0.2f)
 
         return confidenceScore.takeIf { it >= 0.6f }
@@ -351,7 +357,8 @@ class GenerateInsightsUseCase(
         hasAllSignals: Boolean,
         allSignalsMatch: Boolean
     ) {
-        if (!hasAllSignals || occurrences == null) return
+        if (!hasAllSignals || occurrences == null)
+            return
 
         occurrences.totalFailures++
         if (allSignalsMatch) {
