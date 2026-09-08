@@ -1,6 +1,8 @@
-package com.cue.presentation.insights.model
+package com.cue.presentation.insights.mappers
 
-fun Float.toInsightsStrength() : SignalStrength{
+import com.cue.presentation.insights.model.SignalStrength
+
+fun Float.toInsightsStrength() : SignalStrength {
     return if (this >= 0.7f) {
         SignalStrength.STRONG
     } else if (this >= 0.6f) {
